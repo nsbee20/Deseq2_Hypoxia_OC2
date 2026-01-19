@@ -50,3 +50,7 @@ rsconnect/
 
 #Results folder
 Results/
+
+#mac changes
+.DS_Store
+
