@@ -1,0 +1,126 @@
+---
+title: "test"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+#| results: false
+#| message: false
+# Load necessary library
+library(tidyverse)
+library(here)
+library(conflicted)
+library(DESeq2)
+library(ggplot2)
+library(scales) # For readable axis labels
+# Force R to use dplyr for select and filter
+conflict_prefer("select", "dplyr")
+conflict_prefer("filter", "dplyr")
+conflicts_prefer(generics::setdiff)
+```
+
+You can add options to executable code like this
+
+```{r}
+#loading cleaned and annotated data
+data <- read.csv("analysis_ready_count_data.csv", row.names = 1, check.names = FALSE)
+
+#quick view of data imported- should have gene symbols as rowname and hypoxia data for two cell lines and treatment conditions as columns
+head(data)
+
+```
+
+```{r}
+#Defining metadata file and the rownames in the order of colnames of data
+condition <- c(
+  rep("LNCAP_Normoxia",2),
+  rep("LNCAP_Hypoxia",2),
+  rep("PC3_Normoxia",2),
+  rep("PC3_Hypoxia",2)
+)
+metadata<- data.frame(condition, row.names = colnames(data))
+```
+
+```{r}
+#plotting total counts per sample
+summary(data)
+```
+
+The max in each sample is much higher than median/mean counts/sample, indicating genes with extreme counts (probably outliers). Lets prints the genes that have max values for each sample
+
+```{r}
+top_genes_table <- data %>%
+  rownames_to_column(var = "Gene") %>%
+  pivot_longer(cols = -Gene, names_to = "Sample", values_to = "Counts") %>%
+  group_by(Sample) %>%
+  slice_max(order_by = Counts, n = 5) %>%
+  arrange(Sample, desc(Counts))
+```
+
+```{r}
+# 1. Calculate the proportions of counts (efficiently grouping by Type)
+qc_summary <- data %>%
+  rownames_to_column(var = "Gene") %>%
+  pivot_longer(cols = -Gene, names_to = "Sample", values_to = "Counts") %>%
+  mutate(
+    Type = case_when(
+      grepl("^MT-", Gene) ~ "Mitochondrial",
+      grepl("^RP[SL]|^RNA45S|^RNR[12]", Gene) ~ "Ribosomal",
+      TRUE ~ "Nuclear/Other"
+    )
+  ) %>%
+  group_by(Sample, Type) %>%
+  summarise(Type_Total = sum(Counts), .groups = "drop") %>%
+  group_by(Sample) %>%
+  mutate(Percentage = (Type_Total / sum(Type_Total)) * 100)
+
+# 2. Create the plot with centered labels
+ggplot(qc_summary, aes(x = Sample, y = Percentage, fill = Type)) +
+  geom_bar(stat = "identity", width = 0.7) +
+  # position_stack(vjust = 0.5) places the text in the middle of each segment
+  geom_text(aes(label = paste0(round(Percentage, 1), "%")), 
+            position = position_stack(vjust = 0.5), 
+            size = 3,            # Adjust size as needed
+            color = "white",      # White text usually pops better on colored bars
+            fontface = "bold") +
+  theme_minimal() +
+  scale_fill_manual(values = c(
+    "Mitochondrial" = "#e74c3c", # Red for warning/MT
+    "Ribosomal" = "#f1c40f",     # Yellow for Ribosomal
+    "Nuclear/Other" = "#2ecc71"  # Green for main signal
+  )) +
+  labs(title = "Library Composition Analysis",
+       subtitle = "Percentage of total reads per gene category",
+       y = "Percentage of Total Reads (%)",
+       x = NULL) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+```{r}
+# 1. Calculate column sums and convert to a data frame for plotting
+# Calculate library sizes in millions
+lib_size <- data.frame(
+  Sample = colnames(data),
+  Counts_Millions = colSums(data) / 1e6
+)
+# Create the plot
+ggplot(lib_size, aes(x = Sample, y = Counts_Millions, fill = Sample)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  labs(title = "Total Counts per Sample",
+       x = "Sample Name",
+       y = expression("Total Read Counts (" * 10^6 * ")")) +
+  guides(fill = "none")
+```
+
+text
