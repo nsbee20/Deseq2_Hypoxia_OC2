@@ -1,5 +1,5 @@
 ---
-title: "test"
+title: "Counts_QC_before_DE"
 format: html
 editor: visual
 ---
@@ -67,7 +67,7 @@ top_genes_table <- data %>%
 ```
 
 ```{r}
-# 1. Calculate the proportions of counts (efficiently grouping by Type)
+# 1. Calculate the proportions of counts from mito/ribosomal and (efficiently grouping by Type)
 qc_summary <- data %>%
   rownames_to_column(var = "Gene") %>%
   pivot_longer(cols = -Gene, names_to = "Sample", values_to = "Counts") %>%
@@ -101,9 +101,16 @@ ggplot(qc_summary, aes(x = Sample, y = Percentage, fill = Type)) +
   labs(title = "Library Composition Analysis",
        subtitle = "Percentage of total reads per gene category",
        y = "Percentage of Total Reads (%)",
-       x = NULL) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+       x = NULL) + coord_cartesian(clip = "off") + 
+  theme(
+    axis.text.x = element_text(angle = 60, hjust = 1,, size = 8),
+    # Add a little bit of padding to the whole plot to make sure it shows up
+    plot.margin = margin(10, 10, 10, 50) 
+  ) #theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
+
+The mitochondria and Ribosomal RNA counts are relatively low compared to the rest of the counts in LNCaP samples while PC3 samples show high mitochondrial gene counts across all samples. We see this behavior across normal and hypoxia samples so it could be a technical artifact.
 
 ```{r}
 # 1. Calculate column sums and convert to a data frame for plotting
@@ -114,13 +121,13 @@ lib_size <- data.frame(
 )
 # Create the plot
 ggplot(lib_size, aes(x = Sample, y = Counts_Millions, fill = Sample)) +
-  geom_bar(stat = "identity") +
+  geom_col()+
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1,size=8)) +
   labs(title = "Total Counts per Sample",
        x = "Sample Name",
        y = expression("Total Read Counts (" * 10^6 * ")")) +
   guides(fill = "none")
 ```
 
-text
+LNCap counts are relatively consistent across sample while we observe variability even within biological condition for PC3 samples.
