@@ -1,16 +1,8 @@
 ---
-title: "Counts_QC_before_DE"
+title: "Analyzing and QC Counts_QC_before_DE"
 format: html
 editor: visual
 ---
-
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
 
 ```{r}
 #| results: false
@@ -37,17 +29,11 @@ data <- read.csv("analysis_ready_count_data.csv", row.names = 1, check.names = F
 #quick view of data imported- should have gene symbols as rowname and hypoxia data for two cell lines and treatment conditions as columns
 head(data)
 
-```
+#replacing the column names with smaller readble names
+colnames(data) <- colnames(data) %>%
+  str_replace_all("Empty_Vector", "EV") %>%
+  str_replace_all("_RNA-Seq", "")
 
-```{r}
-#Defining metadata file and the rownames in the order of colnames of data
-condition <- c(
-  rep("LNCAP_Normoxia",2),
-  rep("LNCAP_Hypoxia",2),
-  rep("PC3_Normoxia",2),
-  rep("PC3_Hypoxia",2)
-)
-metadata<- data.frame(condition, row.names = colnames(data))
 ```
 
 ```{r}
@@ -55,7 +41,7 @@ metadata<- data.frame(condition, row.names = colnames(data))
 summary(data)
 ```
 
-The max in each sample is much higher than median/mean counts/sample, indicating genes with extreme counts (probably outliers). Lets prints the genes that have max values for each sample
+The max in each sample is much higher than median/mean counts/sample, indicating genes with extreme counts (probably outliers). Lets look at the genes that are on the top end for each sample
 
 ```{r}
 top_genes_table <- data %>%
@@ -64,7 +50,11 @@ top_genes_table <- data %>%
   group_by(Sample) %>%
   slice_max(order_by = Counts, n = 5) %>%
   arrange(Sample, desc(Counts))
+
+print(top_genes_table)
 ```
+
+Most of these genes are mitochondrial or Ribosomal.
 
 ```{r}
 # 1. Calculate the proportions of counts from mito/ribosomal and (efficiently grouping by Type)
@@ -89,14 +79,14 @@ ggplot(qc_summary, aes(x = Sample, y = Percentage, fill = Type)) +
   # position_stack(vjust = 0.5) places the text in the middle of each segment
   geom_text(aes(label = paste0(round(Percentage, 1), "%")), 
             position = position_stack(vjust = 0.5), 
-            size = 3,            # Adjust size as needed
+            size = 2.5,            # Adjust size as needed
             color = "white",      # White text usually pops better on colored bars
             fontface = "bold") +
   theme_minimal() +
-  scale_fill_manual(values = c(
-    "Mitochondrial" = "#e74c3c", # Red for warning/MT
-    "Ribosomal" = "#f1c40f",     # Yellow for Ribosomal
-    "Nuclear/Other" = "#2ecc71"  # Green for main signal
+ scale_fill_manual(values = c(
+    "Nuclear/Other" = "#16A085",  # Teal
+    "Mitochondrial" = "#C0392B",  # Terracotta
+    "Ribosomal"     = "#F39C12"   # Mustard
   )) +
   labs(title = "Library Composition Analysis",
        subtitle = "Percentage of total reads per gene category",

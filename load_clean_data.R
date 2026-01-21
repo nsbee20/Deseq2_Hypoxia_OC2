@@ -13,35 +13,44 @@ raw_data <- as.data.frame(read_tsv("raw_counts.tsv"))
 
 # --- DATA FILTERING AND SAMPLE RENAMING ---
 
-# Define mapping between GSM identifiers and descriptive sample names
-# Samples include LNCaP and PC3 cell lines under Normoxia and Hypoxia conditions
-gsm_map <- c(
-  "GSM3145509" = "LNCaP_RNA-Seq_Empty_Vector_Normoxia_rep1",
-  "GSM3145510" = "LNCaP_RNA-Seq_Empty_Vector_Normoxia_rep2",
-  "GSM3145513" = "LNCaP_RNA-Seq_Empty_Vector_Hypoxia_rep1",
-  "GSM3145514" = "LNCaP_RNA-Seq_Empty_Vector_Hypoxia_rep2",
-  "GSM3145517" = "PC3_RNA-Seq_siCtrl_Normoxia_rep1",
-  "GSM3145518" = "PC3_RNA-Seq_siCtrl_Normoxia_rep2",
-  "GSM3145521" = "PC3_RNA-Seq_siCtrl_Hypoxia_rep1",
-  "GSM3145522" = "PC3_RNA-Seq_siCtrl_Hypoxia_rep2"
+# 1. Create the mapping variable (First 2 columns only)
+geo_metadata <- data.frame(
+  GSM_Accession = c("GeneID",
+    "GSM3145509", "GSM3145510", "GSM3145511", "GSM3145512", # LNCaP Normoxia
+    "GSM3145513", "GSM3145514", "GSM3145515", "GSM3145516", # LNCaP Hypoxia
+    "GSM3145517", "GSM3145518", "GSM3145519", "GSM3145520", # PC3 Normoxia
+    "GSM3145521", "GSM3145522", "GSM3145523", "GSM3145524"  # PC3 Hypoxia
+  ),
+  Original_Title = c("GeneID",
+    "LNCaP_RNA-Seq_Empty_Vector_Normoxia_rep1", "LNCaP_RNA-Seq_Empty_Vector_Normoxia_rep2",
+    "LNCaP_RNA-Seq_Flag-OC2_Overexpression_Normoxia_rep1", "LNCaP_RNA-Seq_Flag-OC2_Overexpression_Normoxia_rep2",
+    "LNCaP_RNA-Seq_Empty_Vector_Hypoxia_rep1", "LNCaP_RNA-Seq_Empty_Vector_Hypoxia_rep2",
+    "LNCaP_RNA-Seq_Flag-OC2_Overexpression_Hypoxia_rep1", "LNCaP_RNA-Seq_Flag-OC2_Overexpression_Hypoxia_rep2",
+    "PC3_RNA-Seq_siCtrl_Normoxia_rep1", "PC3_RNA-Seq_siCtrl_Normoxia_rep2",
+    "PC3_RNA-Seq_siOC2_Normoxia_siRNA1", "PC3_RNA-Seq_siOC2_Normoxia_siRNA2",
+    "PC3_RNA-Seq_siCtrl_Hypoxia_rep1", "PC3_RNA-Seq_siCtrl_Hypoxia_rep2",
+    "PC3_RNA-Seq_siOC2_Hypoxia_siRNA1", "PC3_RNA-Seq_siOC2_Hypoxia_siRNA2"
+  )
 )
 
-# Identify target columns: the GeneID primary key and relevant GSM samples
-gene_id_col <- colnames(raw_data)[1] 
-gsm_cols <- base::intersect(colnames(raw_data), names(gsm_map))
+# 2. Clean titles: replace Empty_Vector -> EV and remove RNA-Seq
+geo_metadata <- geo_metadata %>%
+  mutate(Clean_Title = Original_Title %>%
+           str_replace_all("Empty_Vector", "EV") %>%
+           str_replace_all("_RNA-Seq", "")%>%
+          str_replace_all("Flag-OC2_Overexpression","OC2_overexpress")) 
 
-# Subset dataset to retain only the identified columns
-data_filtered <- raw_data[, c(gene_id_col, gsm_cols)]
+# 3. Assign the cleaned titles to your data matrix
+# (Ensure your matrix columns are in the same order as these GSMs)
+stopifnot(all(colnames(raw_data)==geo_metadata$GSM_Accession))
+colnames(raw_data) <- geo_metadata$Clean_Title
 
-# Rename GSM columns to descriptive names using the mapping vector
-colnames(data_filtered) <- ifelse(colnames(data_filtered) %in% names(gsm_map), 
-                                  gsm_map[colnames(data_filtered)], 
-                                  colnames(data_filtered))
+head(raw_data)
 
 # --- GENE ANNOTATION ---
 
 # Ensure Entrez IDs are formatted as characters for database compatibility
-entrez_ids <- as.character(data_filtered$GeneID)
+entrez_ids <- as.character(raw_data$GeneID)
 
 # Query org.Hs.eg.db for Symbol, Full Gene Name, and Gene Type
 # Keytype is set to ENTREZID to match the input data
@@ -52,7 +61,7 @@ annotations <- AnnotationDbi::select(org.Hs.eg.db,
 
 # Merge annotations with expression data
 # A left join (all.x = TRUE) is performed to preserve all original rows
-annotated_data <- merge(data_filtered, annotations, by.x = "GeneID", by.y = "ENTREZID", all.x = TRUE)
+annotated_data <- merge(raw_data, annotations, by.x = "GeneID", by.y = "ENTREZID", all.x = TRUE)
 
 # --- FILE EXPORT ---
 
