@@ -38,6 +38,7 @@ colnames(data) <- colnames(data) %>%
 
 ```{r}
 #plotting total counts per sample
+#| results: false
 summary(data)
 ```
 
@@ -57,6 +58,10 @@ print(top_genes_table)
 Most of these genes are mitochondrial or Ribosomal.
 
 ```{r}
+#| fig-width: 6.5
+#| fig-height: 4
+#| fig-dpi: 300
+#| layout-ncol: 1
 # 1. Calculate the proportions of counts from mito/ribosomal and (efficiently grouping by Type)
 qc_summary <- data %>%
   rownames_to_column(var = "Gene") %>%
@@ -71,32 +76,48 @@ qc_summary <- data %>%
   group_by(Sample, Type) %>%
   summarise(Type_Total = sum(Counts), .groups = "drop") %>%
   group_by(Sample) %>%
-  mutate(Percentage = (Type_Total / sum(Type_Total)) * 100)
+  mutate(Percentage = (Type_Total / sum(Type_Total)) * 100) %>%
+  mutate(Cell_Line = ifelse(str_detect(Sample, "LNCaP"), "LNCaP", "PC3"))
 
-# 2. Create the plot with centered labels
+#plot bar graph
 ggplot(qc_summary, aes(x = Sample, y = Percentage, fill = Type)) +
-  geom_bar(stat = "identity", width = 0.7) +
-  # position_stack(vjust = 0.5) places the text in the middle of each segment
+  geom_col(width = 0.7, lineend = "round", linejoin = "round") +
   geom_text(aes(label = paste0(round(Percentage, 1), "%")), 
             position = position_stack(vjust = 0.5), 
-            size = 2.5,            # Adjust size as needed
-            color = "white",      # White text usually pops better on colored bars
+            size = 1.5,           # Shrunk text inside bars
+            color = "white", 
             fontface = "bold") +
-  theme_minimal() +
- scale_fill_manual(values = c(
-    "Nuclear/Other" = "#16A085",  # Teal
-    "Mitochondrial" = "#C0392B",  # Terracotta
-    "Ribosomal"     = "#F39C12"   # Mustard
+  facet_wrap(~Cell_Line, scales = "free_x") +
+  scale_fill_manual(values = c(
+    "Nuclear/Other" = "#16A085", 
+    "Mitochondrial" = "#C0392B", 
+    "Ribosomal"     = "#F39C12"
   )) +
-  labs(title = "Library Composition Analysis",
-       subtitle = "Percentage of total reads per gene category",
-       y = "Percentage of Total Reads (%)",
-       x = NULL) + coord_cartesian(clip = "off") + 
+  theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 60, hjust = 1,, size = 8),
-    # Add a little bit of padding to the whole plot to make sure it shows up
-    plot.margin = margin(10, 10, 10, 50) 
-  ) #theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    # --- Axis and Labels ---
+    axis.text.x = element_text(angle = 50, hjust = 1, size = 6),
+    axis.text.y = element_text(size = 6),
+    axis.title.y = element_text(size = 7),
+    
+    # --- Subplot Headers (LNCaP / PC3) ---
+    strip.text = element_text(size = 7, face = "bold"), 
+    
+    # --- Legend (Making it much smaller) ---
+    legend.title = element_text(size = 7),
+    legend.text = element_text(size = 6),
+    legend.key.size = unit(0.3, "cm"), # Reduces the size of the color boxes
+    
+    # --- Main Title ---
+    plot.title = element_text(size = 9, face = "bold", hjust = 0.5),
+    
+    # --- Spacing ---
+    plot.margin = margin(t = 5, r = 5, b = 5, l = 15),
+    panel.spacing = unit(1, "lines") # Adds a clear gap between the two subplots
+  ) +
+  labs(title = "Library Composition by Cell Line/Condition",
+       y = "Percentage of Total Reads (%)", 
+       x = NULL)
 
 ```
 
@@ -104,20 +125,59 @@ The mitochondria and Ribosomal RNA counts are relatively low compared to the res
 
 ```{r}
 # 1. Calculate column sums and convert to a data frame for plotting
-# Calculate library sizes in millions
+# Calculate library sizes in millions#| fig-width: 12
+#| fig-width: 8
+#| fig-height: 4
+#| fig-dpi: 300
+
+# 1. Enhance Metadata
 lib_size <- data.frame(
   Sample = colnames(data),
   Counts_Millions = colSums(data) / 1e6
-)
-# Create the plot
-ggplot(lib_size, aes(x = Sample, y = Counts_Millions, fill = Sample)) +
-  geom_col()+
+) %>%
+  mutate(
+    Cell_Line = ifelse(str_detect(Sample, "LNCaP"), "LNCaP", "PC3"),
+    
+    # --- FIX: Set factor levels so Normoxia is first ---
+    Condition = factor(ifelse(str_detect(Sample, "Hypoxia"), "Hypoxia", "Normoxia"), 
+                       levels = c("Normoxia", "Hypoxia")),
+    
+    Replicate = str_extract(Sample, "(rep|siRNA)[1-2]$"),
+    Treatment = case_when(
+      str_detect(Sample, "EV") ~ "EV",
+      str_detect(Sample, "overexpress") ~ "OC2 OE",
+      str_detect(Sample, "siCtrl") ~ "siCtrl",
+      str_detect(Sample, "siOC2") ~ "siOC2",
+      TRUE ~ "Other"
+    )
+  )
+
+# 2. Plotting every sample separately
+ggplot(lib_size, aes(x = Condition, y = Counts_Millions, fill = Replicate)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.7, lineend = "round", linejoin = "round") +
+  # Nested facets: Cell_Line then Treatment
+  facet_grid(. ~ Cell_Line + Treatment, scales = "free_x", space = "free_x", switch = "x") +
+  # Using your professional muted palette (Teal for Rep1, Terracotta for Rep2)
+  scale_fill_manual(values = c(
+    "rep1" = "#16A085", "rep2" = "#0E6655",
+    "siRNA1" = "#16A085", "siRNA2" = "#0E6655"
+  )) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 60, hjust = 1,size=8)) +
-  labs(title = "Total Counts per Sample",
-       x = "Sample Name",
-       y = expression("Total Read Counts (" * 10^6 * ")")) +
-  guides(fill = "none")
+  theme(
+    strip.placement = "outside",
+    strip.text = element_text(size = 8, face = "bold"),
+    axis.text.x = element_text(size = 7, angle = 45, hjust = 1),
+    panel.spacing.x = unit(1, "lines"),
+    legend.position = "top",
+    legend.title = element_text(size = 8),
+    legend.text = element_text(size = 7),
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 10)
+  ) +
+  labs(
+    title = "Total counts: Normoxia vs Hypoxia by Replicate",
+    y = expression("Total Read Counts (" * 10^6 * ")"),
+    x = NULL # Removed "Experimental Groups" for a cleaner look since facets cover it
+  )
 ```
 
-LNCap counts are relatively consistent across sample while we observe variability even within biological condition for PC3 samples.
+LNCap counts are relatively consistent across all samples while we observe variability even within replicates for PC3 samples for overall counts.

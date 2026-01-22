@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Counts_QC_before_DE</title>
+<title>Analyzing and QC Counts_QC_before_DE</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -82,7 +82,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Counts_QC_before_DE</h1>
+<h1 class="title">Analyzing and QC Counts_QC_before_DE</h1>
 </div>
 
 
@@ -120,48 +120,69 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#quick view of data imported- should have gene symbols as rowname and hypoxia data for two cell lines and treatment conditions as columns</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>         LNCaP_RNA-Seq_Empty_Vector_Normoxia_rep1
-A1BG                                           96
-A2M                                             8
-NAT1                                          613
-NAT2                                           31
-SERPINA3                                      158
-AADAC                                           0
-         LNCaP_RNA-Seq_Empty_Vector_Normoxia_rep2
-A1BG                                          188
-A2M                                             9
-NAT1                                          760
-NAT2                                           34
-SERPINA3                                      217
-AADAC                                           0
-         LNCaP_RNA-Seq_Empty_Vector_Hypoxia_rep1
-A1BG                                          94
-A2M                                            7
-NAT1                                         749
-NAT2                                          29
-SERPINA3                                      75
-AADAC                                          0
-         LNCaP_RNA-Seq_Empty_Vector_Hypoxia_rep2
-A1BG                                         126
-A2M                                            7
-NAT1                                        1149
-NAT2                                          33
-SERPINA3                                      55
-AADAC                                          0
-         PC3_RNA-Seq_siCtrl_Normoxia_rep1 PC3_RNA-Seq_siCtrl_Normoxia_rep2
-A1BG                                    6                                5
-A2M                                     8                               14
-NAT1                                   77                              158
-NAT2                                    0                                1
-SERPINA3                                5                               16
-AADAC                                  19                               43
-         PC3_RNA-Seq_siCtrl_Hypoxia_rep1 PC3_RNA-Seq_siCtrl_Hypoxia_rep2
-A1BG                                   5                               1
-A2M                                    8                               6
-NAT1                                 133                              45
-NAT2                                   2                               0
-SERPINA3                               5                               4
-AADAC                                 61                              34</code></pre>
+<pre><code>         LNCaP_EV_Normoxia_rep1 LNCaP_EV_Normoxia_rep2
+A1BG                         96                    188
+A2M                           8                      9
+NAT1                        613                    760
+NAT2                         31                     34
+SERPINA3                    158                    217
+AAMP                       2211                   3305
+         LNCaP_OC2_overexpress_Normoxia_rep1
+A1BG                                      98
+A2M                                        7
+NAT1                                     399
+NAT2                                      10
+SERPINA3                                  60
+AAMP                                    1709
+         LNCaP_OC2_overexpress_Normoxia_rep2 LNCaP_EV_Hypoxia_rep1
+A1BG                                     118                    94
+A2M                                       10                     7
+NAT1                                     625                   749
+NAT2                                      25                    29
+SERPINA3                                 110                    75
+AAMP                                    2072                  2324
+         LNCaP_EV_Hypoxia_rep2 LNCaP_OC2_overexpress_Hypoxia_rep1
+A1BG                       126                                135
+A2M                          7                                 14
+NAT1                      1149                                623
+NAT2                        33                                 31
+SERPINA3                    55                                101
+AAMP                      2641                               1980
+         LNCaP_OC2_overexpress_Hypoxia_rep2 PC3_siCtrl_Normoxia_rep1
+A1BG                                    104                        6
+A2M                                       9                        8
+NAT1                                    522                       77
+NAT2                                     22                        0
+SERPINA3                                 72                        5
+AAMP                                   1366                      485
+         PC3_siCtrl_Normoxia_rep2 PC3_siOC2_Normoxia_siRNA1
+A1BG                            5                        15
+A2M                            14                        12
+NAT1                          158                       169
+NAT2                            1                         7
+SERPINA3                       16                         9
+AAMP                         1144                      1577
+         PC3_siOC2_Normoxia_siRNA2 PC3_siCtrl_Hypoxia_rep1
+A1BG                            33                       5
+A2M                             10                       8
+NAT1                           207                     133
+NAT2                             8                       2
+SERPINA3                         6                       5
+AAMP                          1132                     911
+         PC3_siCtrl_Hypoxia_rep2 PC3_siOC2_Hypoxia_siRNA1
+A1BG                           1                        2
+A2M                            6                        3
+NAT1                          45                       32
+NAT2                           0                        1
+SERPINA3                       4                        0
+AAMP                         281                      330
+         PC3_siOC2_Hypoxia_siRNA2
+A1BG                           12
+A2M                            11
+NAT1                          144
+NAT2                           10
+SERPINA3                        3
+AAMP                          992</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#replacing the column names with smaller readble names</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(data) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(data) <span class="sc">%&gt;%</span></span>
@@ -169,52 +190,90 @@ AADAC                                 61                              34</code><
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">str_replace_all</span>(<span class="st">"_RNA-Seq"</span>, <span class="st">""</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Defining metadata file and the rownames in the order of colnames of data</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>condition <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rep</span>(<span class="st">"LNCAP_Normoxia"</span>,<span class="dv">2</span>),</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rep</span>(<span class="st">"LNCAP_Hypoxia"</span>,<span class="dv">2</span>),</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rep</span>(<span class="st">"PC3_Normoxia"</span>,<span class="dv">2</span>),</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rep</span>(<span class="st">"PC3_Hypoxia"</span>,<span class="dv">2</span>)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>metadata<span class="ot">&lt;-</span> <span class="fu">data.frame</span>(condition, <span class="at">row.names =</span> <span class="fu">colnames</span>(data))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plotting total counts per sample</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#plotting total counts per sample</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| results: false</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code> LNCaP_EV_Normoxia_rep1 LNCaP_EV_Normoxia_rep2 LNCaP_EV_Hypoxia_rep1
- Min.   :      0        Min.   :      0        Min.   :     0       
- 1st Qu.:      1        1st Qu.:      1        1st Qu.:     1       
- Median :     31        Median :     39        Median :    30       
- Mean   :   1407        Mean   :   1729        Mean   :  1299       
- 3rd Qu.:    855        3rd Qu.:   1090        3rd Qu.:   852       
- Max.   :1487915        Max.   :1807568        Max.   :813195       
- LNCaP_EV_Hypoxia_rep2 PC3_siCtrl_Normoxia_rep1 PC3_siCtrl_Normoxia_rep2
- Min.   :     0        Min.   :      0.0        Min.   :       0        
- 1st Qu.:     1        1st Qu.:      0.0        1st Qu.:       1        
- Median :    35        Median :      8.0        Median :      22        
- Mean   :  1482        Mean   :    639.6        Mean   :    1863        
- 3rd Qu.:   985        3rd Qu.:    149.0        3rd Qu.:     400        
- Max.   :818218        Max.   :5077623.0        Max.   :16570325        
- PC3_siCtrl_Hypoxia_rep1 PC3_siCtrl_Hypoxia_rep2
- Min.   :       0        Min.   :      0        
- 1st Qu.:       1        1st Qu.:      0        
- Median :      18        Median :      7        
- Mean   :    1694        Mean   :    570        
- 3rd Qu.:     348        3rd Qu.:    122        
- Max.   :15843114        Max.   :5392463        </code></pre>
+<pre><code> LNCaP_EV_Normoxia_rep1 LNCaP_EV_Normoxia_rep2
+ Min.   :      0        Min.   :      0       
+ 1st Qu.:      9        1st Qu.:     11       
+ Median :    184        Median :    238       
+ Mean   :   1828        Mean   :   2247       
+ 3rd Qu.:   1380        3rd Qu.:   1708       
+ Max.   :1487915        Max.   :1807568       
+ LNCaP_OC2_overexpress_Normoxia_rep1 LNCaP_OC2_overexpress_Normoxia_rep2
+ Min.   :0.000e+00                   Min.   :      0                    
+ 1st Qu.:7.750e+00                   1st Qu.:     11                    
+ Median :1.250e+02                   Median :    187                    
+ Mean   :1.237e+03                   Mean   :   1821                    
+ 3rd Qu.:8.300e+02                   3rd Qu.:   1241                    
+ Max.   :2.079e+06                   Max.   :2572426                    
+ LNCaP_EV_Hypoxia_rep1 LNCaP_EV_Hypoxia_rep2 LNCaP_OC2_overexpress_Hypoxia_rep1
+ Min.   :     0        Min.   :     0        Min.   :      0                   
+ 1st Qu.:     9        1st Qu.:    10        1st Qu.:     14                   
+ Median :   186        Median :   212        Median :    243                   
+ Mean   :  1683        Mean   :  1920        Mean   :   1968                   
+ 3rd Qu.:  1391        3rd Qu.:  1602        3rd Qu.:   1525                   
+ Max.   :813195        Max.   :818218        Max.   :3965574                   
+ LNCaP_OC2_overexpress_Hypoxia_rep2 PC3_siCtrl_Normoxia_rep1
+ Min.   :      0                    Min.   :      0.0       
+ 1st Qu.:     10                    1st Qu.:      3.0       
+ Median :    164                    Median :     39.0       
+ Mean   :   1331                    Mean   :    834.3       
+ 3rd Qu.:   1064                    3rd Qu.:    234.0       
+ Max.   :2076223                    Max.   :5077623.0       
+ PC3_siCtrl_Normoxia_rep2 PC3_siOC2_Normoxia_siRNA1 PC3_siOC2_Normoxia_siRNA2
+ Min.   :       0         Min.   :       0          Min.   :       0         
+ 1st Qu.:       8         1st Qu.:      10          1st Qu.:      10         
+ Median :     105         Median :     123          Median :     109         
+ Mean   :    2430         Mean   :    2834          Mean   :    1992         
+ 3rd Qu.:     630         3rd Qu.:     752          3rd Qu.:     583         
+ Max.   :16570325         Max.   :20686413          Max.   :12139290         
+ PC3_siCtrl_Hypoxia_rep1 PC3_siCtrl_Hypoxia_rep2 PC3_siOC2_Hypoxia_siRNA1
+ Min.   :       0        Min.   :      0.0       Min.   :      0.0       
+ 1st Qu.:       7        1st Qu.:      2.0       1st Qu.:      2.0       
+ Median :      85        Median :     30.0       Median :     23.0       
+ Mean   :    2210        Mean   :    743.5       Mean   :    632.1       
+ 3rd Qu.:     577        3rd Qu.:    200.0       3rd Qu.:    157.0       
+ Max.   :15843114        Max.   :5392463.0       Max.   :4171666.0       
+ PC3_siOC2_Hypoxia_siRNA2
+ Min.   :0.000e+00       
+ 1st Qu.:9.000e+00       
+ Median :9.850e+01       
+ Mean   :1.928e+03       
+ 3rd Qu.:5.710e+02       
+ Max.   :1.364e+07       </code></pre>
 </div>
 </div>
-<p>The max in each sample is much higher than median/mean counts/sample, indicating genes with extreme counts (probably outliers). Lets prints the genes that have max values for each sample</p>
+<p>The max in each sample is much higher than median/mean counts/sample, indicating genes with extreme counts (probably outliers). Lets look at the genes that are on the top end for each sample</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>top_genes_table <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames_to_column</span>(<span class="at">var =</span> <span class="st">"Gene"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span>Gene, <span class="at">names_to =</span> <span class="st">"Sample"</span>, <span class="at">values_to =</span> <span class="st">"Counts"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Sample) <span class="sc">%&gt;%</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> Counts, <span class="at">n =</span> <span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Sample, <span class="fu">desc</span>(Counts))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>top_genes_table <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames_to_column</span>(<span class="at">var =</span> <span class="st">"Gene"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span>Gene, <span class="at">names_to =</span> <span class="st">"Sample"</span>, <span class="at">values_to =</span> <span class="st">"Counts"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Sample) <span class="sc">%&gt;%</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> Counts, <span class="at">n =</span> <span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Sample, <span class="fu">desc</span>(Counts))</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(top_genes_table)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 80 × 3
+# Groups:   Sample [16]
+   Gene    Sample                Counts
+   &lt;chr&gt;   &lt;chr&gt;                  &lt;int&gt;
+ 1 MT-ND4  LNCaP_EV_Hypoxia_rep1 813195
+ 2 MT-CO1  LNCaP_EV_Hypoxia_rep1 738599
+ 3 MT-ATP6 LNCaP_EV_Hypoxia_rep1 341116
+ 4 MT-CO2  LNCaP_EV_Hypoxia_rep1 328782
+ 5 MT-RNR2 LNCaP_EV_Hypoxia_rep1 285070
+ 6 MT-ND4  LNCaP_EV_Hypoxia_rep2 818218
+ 7 MT-CO1  LNCaP_EV_Hypoxia_rep2 788989
+ 8 MT-ATP6 LNCaP_EV_Hypoxia_rep2 376676
+ 9 MT-CO2  LNCaP_EV_Hypoxia_rep2 359900
+10 MT-RNR2 LNCaP_EV_Hypoxia_rep2 331285
+# ℹ 70 more rows</code></pre>
 </div>
-<div class="cell">
+</div>
+<p>Most of these genes are mitochondrial or Ribosomal.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Calculate the proportions of counts from mito/ribosomal and (efficiently grouping by Type)</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>qc_summary <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames_to_column</span>(<span class="at">var =</span> <span class="st">"Gene"</span>) <span class="sc">%&gt;%</span></span>
@@ -229,32 +288,111 @@ AADAC                                 61                              34</code><
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Sample, Type) <span class="sc">%&gt;%</span></span>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Type_Total =</span> <span class="fu">sum</span>(Counts), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Sample) <span class="sc">%&gt;%</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Percentage =</span> (Type_Total <span class="sc">/</span> <span class="fu">sum</span>(Type_Total)) <span class="sc">*</span> <span class="dv">100</span>)</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Create the plot with centered labels</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(qc_summary, <span class="fu">aes</span>(<span class="at">x =</span> Sample, <span class="at">y =</span> Percentage, <span class="at">fill =</span> Type)) <span class="sc">+</span></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">width =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># position_stack(vjust = 0.5) places the text in the middle of each segment</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Percentage =</span> (Type_Total <span class="sc">/</span> <span class="fu">sum</span>(Type_Total)) <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Cell_Line =</span> <span class="fu">ifelse</span>(<span class="fu">str_detect</span>(Sample, <span class="st">"LNCaP"</span>), <span class="st">"LNCaP"</span>, <span class="st">"PC3"</span>))</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co">#plot bar graph</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(qc_summary, <span class="fu">aes</span>(<span class="at">x =</span> Sample, <span class="at">y =</span> Percentage, <span class="at">fill =</span> Type)) <span class="sc">+</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="fl">0.7</span>, <span class="at">lineend =</span> <span class="st">"round"</span>, <span class="at">linejoin =</span> <span class="st">"round"</span>) <span class="sc">+</span></span>
 <span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">paste0</span>(<span class="fu">round</span>(Percentage, <span class="dv">1</span>), <span class="st">"%"</span>)), </span>
 <span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>            <span class="at">position =</span> <span class="fu">position_stack</span>(<span class="at">vjust =</span> <span class="fl">0.5</span>), </span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> <span class="dv">3</span>,            <span class="co"># Adjust size as needed</span></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">"white"</span>,      <span class="co"># White text usually pops better on colored bars</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> <span class="fl">1.5</span>,           <span class="co"># Shrunk text inside bars</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>            <span class="at">color =</span> <span class="st">"white"</span>, </span>
 <span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>            <span class="at">fontface =</span> <span class="st">"bold"</span>) <span class="sc">+</span></span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a> <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(</span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Nuclear/Other"</span> <span class="ot">=</span> <span class="st">"#16A085"</span>,  <span class="co"># Teal</span></span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Mitochondrial"</span> <span class="ot">=</span> <span class="st">"#C0392B"</span>,  <span class="co"># Terracotta</span></span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Ribosomal"</span>     <span class="ot">=</span> <span class="st">"#F39C12"</span>   <span class="co"># Mustard</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Cell_Line, <span class="at">scales =</span> <span class="st">"free_x"</span>) <span class="sc">+</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Nuclear/Other"</span> <span class="ot">=</span> <span class="st">"#16A085"</span>, </span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Mitochondrial"</span> <span class="ot">=</span> <span class="st">"#C0392B"</span>, </span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Ribosomal"</span>     <span class="ot">=</span> <span class="st">"#F39C12"</span></span>
 <span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">+</span></span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Library Composition Analysis"</span>,</span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Percentage of total reads per gene category"</span>,</span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Percentage of Total Reads (%)"</span>,</span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="cn">NULL</span>) <span class="sc">+</span> <span class="fu">coord_cartesian</span>(<span class="at">clip =</span> <span class="st">"off"</span>) <span class="sc">+</span> </span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">60</span>, <span class="at">hjust =</span> <span class="dv">1</span>,, <span class="at">size =</span> <span class="dv">8</span>),</span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add a little bit of padding to the whole plot to make sure it shows up</span></span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">50</span>) </span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>  ) <span class="co">#theme(axis.text.x = element_text(angle = 45, hjust = 1))</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Axis and Labels ---</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">50</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">6</span>),</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">7</span>),</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Subplot Headers (LNCaP / PC3) ---</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">7</span>, <span class="at">face =</span> <span class="st">"bold"</span>), </span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Legend (Making it much smaller) ---</span></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">7</span>),</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">6</span>),</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.key.size =</span> <span class="fu">unit</span>(<span class="fl">0.3</span>, <span class="st">"cm"</span>), <span class="co"># Reduces the size of the color boxes</span></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Main Title ---</span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">9</span>, <span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- Spacing ---</span></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="at">t =</span> <span class="dv">5</span>, <span class="at">r =</span> <span class="dv">5</span>, <span class="at">b =</span> <span class="dv">5</span>, <span class="at">l =</span> <span class="dv">15</span>),</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.spacing =</span> <span class="fu">unit</span>(<span class="dv">1</span>, <span class="st">"lines"</span>) <span class="co"># Adds a clear gap between the two subplots</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Library Composition by Cell Line/Condition"</span>,</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Percentage of Total Reads (%)"</span>, </span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell quarto-layout-panel" data-layout-ncol="1">
+<div class="quarto-layout-row">
+<div class="quarto-layout-cell" style="flex-basis: 100.0%;justify-content: center;">
+<p><img src="DGE_analysis_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="1950"></p>
+</div>
+</div>
+</div>
+<p>The mitochondria and Ribosomal RNA counts are relatively low compared to the rest of the counts in LNCaP samples while PC3 samples show high mitochondrial gene counts across all samples. We see this behavior across normal and hypoxia samples so it could be a technical artifact.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Calculate column sums and convert to a data frame for plotting</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate library sizes in millions#| fig-width: 12</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 8</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 4</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-dpi: 300</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Enhance Metadata</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>lib_size <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sample =</span> <span class="fu">colnames</span>(data),</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">Counts_Millions =</span> <span class="fu">colSums</span>(data) <span class="sc">/</span> <span class="fl">1e6</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">Cell_Line =</span> <span class="fu">ifelse</span>(<span class="fu">str_detect</span>(Sample, <span class="st">"LNCaP"</span>), <span class="st">"LNCaP"</span>, <span class="st">"PC3"</span>),</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># --- FIX: Set factor levels so Normoxia is first ---</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">Condition =</span> <span class="fu">factor</span>(<span class="fu">ifelse</span>(<span class="fu">str_detect</span>(Sample, <span class="st">"Hypoxia"</span>), <span class="st">"Hypoxia"</span>, <span class="st">"Normoxia"</span>), </span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>                       <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Normoxia"</span>, <span class="st">"Hypoxia"</span>)),</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">Replicate =</span> <span class="fu">str_extract</span>(Sample, <span class="st">"(rep|siRNA)[1-2]$"</span>),</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">Treatment =</span> <span class="fu">case_when</span>(</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>      <span class="fu">str_detect</span>(Sample, <span class="st">"EV"</span>) <span class="sc">~</span> <span class="st">"EV"</span>,</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">str_detect</span>(Sample, <span class="st">"overexpress"</span>) <span class="sc">~</span> <span class="st">"OC2 OE"</span>,</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>      <span class="fu">str_detect</span>(Sample, <span class="st">"siCtrl"</span>) <span class="sc">~</span> <span class="st">"siCtrl"</span>,</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>      <span class="fu">str_detect</span>(Sample, <span class="st">"siOC2"</span>) <span class="sc">~</span> <span class="st">"siOC2"</span>,</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">"Other"</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Plotting every sample separately</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(lib_size, <span class="fu">aes</span>(<span class="at">x =</span> Condition, <span class="at">y =</span> Counts_Millions, <span class="at">fill =</span> Replicate)) <span class="sc">+</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.8</span>), <span class="at">width =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Nested facets: Cell_Line then Treatment</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(. <span class="sc">~</span> Cell_Line <span class="sc">+</span> Treatment, <span class="at">scales =</span> <span class="st">"free_x"</span>, <span class="at">space =</span> <span class="st">"free_x"</span>, <span class="at">switch =</span> <span class="st">"x"</span>) <span class="sc">+</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Using your professional muted palette (Teal for Rep1, Terracotta for Rep2)</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>    <span class="st">"rep1"</span> <span class="ot">=</span> <span class="st">"#16A085"</span>, <span class="st">"rep2"</span> <span class="ot">=</span> <span class="st">"#0E6655"</span>,</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">"siRNA1"</span> <span class="ot">=</span> <span class="st">"#16A085"</span>, <span class="st">"siRNA2"</span> <span class="ot">=</span> <span class="st">"#0E6655"</span></span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">+</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.placement =</span> <span class="st">"outside"</span>,</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">7</span>, <span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>),</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.spacing.x =</span> <span class="fu">unit</span>(<span class="dv">1</span>, <span class="st">"lines"</span>),</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"top"</span>,</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>),</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">7</span>),</span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="fl">0.5</span>, <span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">10</span>)</span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Total counts: Normoxia vs Hypoxia by Replicate"</span>,</span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">expression</span>(<span class="st">"Total Read Counts ("</span> <span class="sc">*</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">6</span> <span class="sc">*</span> <span class="st">")"</span>),</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="cn">NULL</span> <span class="co"># Removed "Experimental Groups" for a cleaner look since facets cover it</span></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -263,32 +401,7 @@ AADAC                                 61                              34</code><
 </div>
 </div>
 </div>
-<p>The mitochondria and Ribosomal RNA counts are relatively low compared to the rest of the counts in LNCaP samples while PC3 samples show high mitochondrial gene counts across all samples. We see this behavior across normal and hypoxia samples so it could be a technical artifact.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Calculate column sums and convert to a data frame for plotting</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate library sizes in millions</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>lib_size <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sample =</span> <span class="fu">colnames</span>(data),</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">Counts_Millions =</span> <span class="fu">colSums</span>(data) <span class="sc">/</span> <span class="fl">1e6</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the plot</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(lib_size, <span class="fu">aes</span>(<span class="at">x =</span> Sample, <span class="at">y =</span> Counts_Millions, <span class="at">fill =</span> Sample)) <span class="sc">+</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>()<span class="sc">+</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">60</span>, <span class="at">hjust =</span> <span class="dv">1</span>,<span class="at">size=</span><span class="dv">8</span>)) <span class="sc">+</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Total Counts per Sample"</span>,</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Sample Name"</span>,</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(<span class="st">"Total Read Counts ("</span> <span class="sc">*</span> <span class="dv">10</span><span class="sc">^</span><span class="dv">6</span> <span class="sc">*</span> <span class="st">")"</span>)) <span class="sc">+</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">fill =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="DGE_analysis_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<p>LNCap counts are relatively consistent across sample while we observe variability even within biological condition for PC3 samples.</p>
+<p>LNCap counts are relatively consistent across all samples while we observe variability even within biological replicates for PC3 samples for overall counts.</p>
 
 </main>
 <!-- /main column -->
