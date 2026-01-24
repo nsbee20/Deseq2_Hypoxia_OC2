@@ -1,8 +1,17 @@
 ---
-title: "Analyzing and QC Counts_QC_before_DE"
-format: html
-editor: visual
+title: "Quality Control and Library Composition Analysis"
+subtitle: "Exploratory Analysis of RNA-Seq Data: LNCaP & PC3 under Hypoxic Stress"
+author: "Nitin Beesabathuni"
+date: "`r Sys.Date()`"
+format: 
+  html:
+    toc: true
+    toc-depth: 2
+    code-fold: true
+    theme: cosmo
 ---
+
+Summary This report details the initial Quality Control (QC) and exploratory analysis of transcriptomic data from LNCaP and PC3 prostate cancer cell lines under genetic perturbation (https://pubmed.ncbi.nlm.nih.gov/30655535/). The goal is to evaluate sequencing depth and library composition (Mitochondrial vs. Ribosomal content) across treatment/replicate conditions prior to differential expression analysis.
 
 ```{r}
 #| results: false
@@ -13,56 +22,193 @@ library(here)
 library(conflicted)
 library(DESeq2)
 library(ggplot2)
+library(ggpubr) 
 library(scales) # For readable axis labels
-# Force R to use dplyr for select and filter
+library(gt)
+# Resolve namespace conflicts
 conflict_prefer("select", "dplyr")
 conflict_prefer("filter", "dplyr")
 conflicts_prefer(generics::setdiff)
 ```
 
-You can add options to executable code like this
+## 1. Data Import and Preparation
+
+Importing the annotated count matrix. Gene symbols are used as primary identifiers.
 
 ```{r}
-#loading cleaned and annotated data
+# Loading cleaned and annotated data
+# check.names = FALSE ensures sample IDs containing dashes/special characters remain intact
 data <- read.csv("analysis_ready_count_data.csv", row.names = 1, check.names = FALSE)
 
-#quick view of data imported- should have gene symbols as rowname and hypoxia data for two cell lines and treatment conditions as columns
-head(data)
-
-#replacing the column names with smaller readble names
-colnames(data) <- colnames(data) %>%
-  str_replace_all("Empty_Vector", "EV") %>%
-  str_replace_all("_RNA-Seq", "")
+# Display data structure
+head(data) %>% gt(rownames_to_stub = TRUE)
 
 ```
 
+## 2. Sequencing Depth & Replicate Consistency
+
+Lets first evaluate the total read counts per sample to identify potential library size biases.
+
 ```{r}
-#plotting total counts per sample
-#| results: false
-summary(data)
+#| fig-width: 10
+#| fig-height: 5
+#| fig-cap: "Figure 1: Total library sizes grouped by Cell Line, Treatment, and Genetic perturbation."
+
+lib_size <- data.frame(
+  Sample = colnames(data),
+  Counts_Millions = colSums(data) / 1e6
+) %>%
+  mutate(
+    Cell_Line = ifelse(str_detect(Sample, "LNCaP"), "LNCaP", "PC3"),
+    Condition = factor(ifelse(str_detect(Sample, "Hypoxia"), "Hypoxia", "Normoxia"), 
+                       levels = c("Normoxia", "Hypoxia")),
+    Replicate = str_extract(Sample, "(rep|siRNA)[1-2]$"),
+    Treatment = case_when(
+      str_detect(Sample, "EV") ~ "Empty Vector",
+      str_detect(Sample, "overexpress") ~ "OC2 Overexpression",
+      str_detect(Sample, "siCtrl") ~ "siCtrl",
+      str_detect(Sample, "siOC2") ~ "siOC2",
+      TRUE ~ "Other"
+    )
+  )
+
+ggplot(lib_size, aes(x = Condition, y = Counts_Millions, fill = Replicate)) +
+  geom_col(position = position_dodge(width = 0.8), width = 0.7) +
+  facet_grid(. ~ Cell_Line + Treatment, scales = "free_x", space = "free_x", switch = "x") +
+  # Teal gradient for reps, Blue gradient for siRNA to distinguish experimental designs
+  scale_fill_manual(values = c("rep1" = "#16A085", "rep2" = "#0E6655", 
+                               "siRNA1" = "#2980B9", "siRNA2" = "#1A5276")) +
+  theme_minimal() +
+  theme(strip.placement = "outside", 
+        strip.text = element_text(size = 9, face = "bold"),
+        legend.position = "top") +
+  labs(title = "Sequencing Depth Distribution",
+       y = "Total Read Counts (Million)", x = NULL)
 ```
 
-The max in each sample is much higher than median/mean counts/sample, indicating genes with extreme counts (probably outliers). Lets look at the genes that are on the top end for each sample
+LNCaP samples show consistent read depths across conditions. Conversly, PC3 replicates indicate noticeable variability in depth. These differences in sequencing can be addressed using size-factor normalization or other normalization methods during differential expression analysis.
 
 ```{r}
-top_genes_table <- data %>%
+#| fig-width: 10
+#| fig-height: 5
+#| fig-cap: "Figure 2: Distribution of Log2-transformed counts."
+
+data_long <- data %>%
+  rownames_to_column("Gene") %>%
+  pivot_longer(-Gene, names_to = "Sample", values_to = "Counts") %>%
+  filter(Counts > 0) %>% 
+  left_join(lib_size, by = "Sample")
+
+ggplot(data_long, aes(x = Condition, y = log2(Counts + 1), fill = Replicate)) +
+  geom_boxplot(outlier.size = 0.2, alpha = 0.7, outlier.alpha = 0.1) +
+  facet_grid(. ~ Cell_Line + Treatment, scales = "free_x", space = "free_x", switch = "x") +
+  scale_fill_manual(values = c("rep1" = "#16A085", "rep2" = "#0E6655", 
+                               "siRNA1" = "#2980B9", "siRNA2" = "#1A5276")) +
+  theme_minimal() +
+  theme(strip.placement = "outside", legend.position = "top") +
+  labs(title = "Global Gene Expression Distributions",
+       y = expression(Log[2] * "(Counts + 1)"), x = NULL)
+```
+
+Global expression profiles are relatively consistent across samples, with median log2 counts ranging between 7.5 and 8.0. However, we can notice some extreme high-count outliers (\>20 on the log2 scale).
+
+```{r}
+#| fig-width: 14
+#| fig-height: 10
+#| fig-dpi: 300
+#| fig-cap: "Figure-3:Pearson correlation of log2-transformed counts for replicates per group"
+
+# 1. Prepare Data (Same logic as before)
+corr_data <- data %>%
+  rownames_to_column("Gene") %>%
+  pivot_longer(-Gene, names_to = "Sample", values_to = "Counts") %>%
+  mutate(
+    Group = str_remove(Sample, "_(rep|siRNA)[1-2]$"),
+    Replicate = paste0("Rep_", str_extract(Sample, "[1-2]$"))
+  ) %>%
+  select(-Sample) %>%
+  pivot_wider(names_from = Replicate, values_from = Counts)
+
+# 2. Plot with Statistical Annotation
+ggplot(corr_data, aes(x = log2(Rep_1 + 1), y = log2(Rep_2 + 1))) +
+  geom_bin2d(bins = 100) + 
+  scale_fill_viridis_c(option = "mako", trans = "log10") +
+  geom_abline(intercept = 0, slope = 1, color = "red", linetype = "dashed") +
+  facet_wrap(~Group, ncol = 4) +
+  # Add Correlation Coefficient and P-value
+  stat_cor(method = "pearson", 
+           label.x = 1,      # X-position for label
+           label.y = 22,     # Y-position for label
+           size = 5, 
+           color = "black",
+           fontface = "bold") +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(size = 10, face = "bold"),
+    legend.position = "right",
+    plot.title = element_text(face = "bold", hjust = 0.5)
+  ) +
+  labs(
+    title = "Replicate Reproducibility",
+    x = "Rep-1 Log2(Count + 1)",
+    y = "Rep-2 Log2(Count + 1)",
+    fill = "Gene Count"
+  )
+```
+
+Replicates demonstrate high correlation (R >= 0.95), indicating robust reproducibility across all experimental conditions.
+
+## 3. Library Composition
+
+Lets investigate the highly abundant transcripts identified in Figure 2 to determine if they represent biologically relevant signals or technical artifacts.
+
+```{r}
+#| fig-width: 14
+#| fig-height: 10
+#| fig-dpi: 300
+#| fig-cap: "Figure-4:Genes with highest count"
+# 1. Prepare Data
+top_genes_plot_data <- data %>%
   rownames_to_column(var = "Gene") %>%
   pivot_longer(cols = -Gene, names_to = "Sample", values_to = "Counts") %>%
   group_by(Sample) %>%
-  slice_max(order_by = Counts, n = 5) %>%
-  arrange(Sample, desc(Counts))
+  slice_max(order_by = Counts, n = 3, with_ties = FALSE) %>% 
+  ungroup() %>%
+  mutate(Gene_Sorted = tidytext::reorder_within(Gene, Counts, Sample))
 
-print(top_genes_table)
+
+# My preferred colors but you can define your own
+pref_colors <- c(
+  "#2C3E50", "#16A085", "#2980B9", "#8E44AD", "#117A65",
+  "#D35400", "#C0392B", "#7F8C8D", "#1F618D","#273746",
+  "#A04000", "#1D8348", "#512E5F", "#922B21","#1B2631"
+)
+
+#plot the top genes
+ggplot(top_genes_plot_data, aes(y = Gene_Sorted, x = Counts, fill = Gene)) +
+  geom_col(show.legend = FALSE, width = 0.8) +
+  geom_text(aes(label = Gene), hjust = 1.1, size = 3, color = "white", fontface = "bold") +
+  tidytext::scale_y_reordered() +
+  scale_x_log10(labels = scales::label_log(), breaks = scales::log_breaks(n = 3)) +
+  facet_wrap(~Sample, scales = "free_y", ncol = 4) + 
+  scale_fill_manual(values = pref_colors) +
+  theme_minimal() +
+  theme(axis.text.y = element_blank(),
+        strip.text = element_text(face = "bold", size = 8),
+        strip.background = element_rect(fill = "#F4F6F7", color = NA)) +
+  labs(title = "Top 3 Most Highly Expressed Genes per Replicate",
+       x = "Raw Read Counts (Log10)", y = NULL)
 ```
 
-Most of these genes are mitochondrial or Ribosomal.
+The most abundant transcripts are consistent across samples within each cell line. Mitochondrial genes and *RNA45SN* dominate across samples. Crucially, *ONECUT2* appears as a top gene in overexpression samples, validating the experimental perturbation and analysis.
+
+Given the prevalence of mitochondrial transcripts, lets quantify the exact proportion of the library they occupy per sample. Additionally, we can inspect the ribosomal content to confirm the efficiency of the Poly-A selection, ensuring that mature mRNA was successfully enriched.
 
 ```{r}
-#| fig-width: 6.5
-#| fig-height: 4
-#| fig-dpi: 300
-#| layout-ncol: 1
-# 1. Calculate the proportions of counts from mito/ribosomal and (efficiently grouping by Type)
+#| fig-width: 10
+#| fig-height: 5
+#| fig-cap: "Figure-5: "
+#| 
 qc_summary <- data %>%
   rownames_to_column(var = "Gene") %>%
   pivot_longer(cols = -Gene, names_to = "Sample", values_to = "Counts") %>%
@@ -76,108 +222,18 @@ qc_summary <- data %>%
   group_by(Sample, Type) %>%
   summarise(Type_Total = sum(Counts), .groups = "drop") %>%
   group_by(Sample) %>%
-  mutate(Percentage = (Type_Total / sum(Type_Total)) * 100) %>%
-  mutate(Cell_Line = ifelse(str_detect(Sample, "LNCaP"), "LNCaP", "PC3"))
+  mutate(Percentage = (Type_Total / sum(Type_Total)) * 100,
+         Cell_Line = ifelse(str_detect(Sample, "LNCaP"), "LNCaP", "PC3"))
 
-#plot bar graph
 ggplot(qc_summary, aes(x = Sample, y = Percentage, fill = Type)) +
-  geom_col(width = 0.7, lineend = "round", linejoin = "round") +
-  geom_text(aes(label = paste0(round(Percentage, 1), "%")), 
-            position = position_stack(vjust = 0.5), 
-            size = 1.5,           # Shrunk text inside bars
-            color = "white", 
-            fontface = "bold") +
+  geom_col(width = 0.7) +
+  geom_text(aes(label = paste0(round(Percentage, 0), "%")), 
+            position = position_stack(vjust = 0.5), size = 3, color = "white", fontface = "bold") +
   facet_wrap(~Cell_Line, scales = "free_x") +
-  scale_fill_manual(values = c(
-    "Nuclear/Other" = "#16A085", 
-    "Mitochondrial" = "#C0392B", 
-    "Ribosomal"     = "#F39C12"
-  )) +
+  scale_fill_manual(values = c("Nuclear/Other" = "#117A65", "Mitochondrial" = "#C0392B", "Ribosomal" = "#F39C12")) +
   theme_minimal() +
-  theme(
-    # --- Axis and Labels ---
-    axis.text.x = element_text(angle = 50, hjust = 1, size = 6),
-    axis.text.y = element_text(size = 6),
-    axis.title.y = element_text(size = 7),
-    
-    # --- Subplot Headers (LNCaP / PC3) ---
-    strip.text = element_text(size = 7, face = "bold"), 
-    
-    # --- Legend (Making it much smaller) ---
-    legend.title = element_text(size = 7),
-    legend.text = element_text(size = 6),
-    legend.key.size = unit(0.3, "cm"), # Reduces the size of the color boxes
-    
-    # --- Main Title ---
-    plot.title = element_text(size = 9, face = "bold", hjust = 0.5),
-    
-    # --- Spacing ---
-    plot.margin = margin(t = 5, r = 5, b = 5, l = 15),
-    panel.spacing = unit(1, "lines") # Adds a clear gap between the two subplots
-  ) +
-  labs(title = "Library Composition by Cell Line/Condition",
-       y = "Percentage of Total Reads (%)", 
-       x = NULL)
-
+  theme(axis.text.x = element_text(angle = 60, hjust = 1), legend.position = "right") +
+  labs(title = "Library Composition Analysis", y = "Percentage of Total Reads", x = NULL)
 ```
 
-The mitochondria and Ribosomal RNA counts are relatively low compared to the rest of the counts in LNCaP samples while PC3 samples show high mitochondrial gene counts across all samples. We see this behavior across normal and hypoxia samples so it could be a technical artifact.
-
-```{r}
-# 1. Calculate column sums and convert to a data frame for plotting
-# Calculate library sizes in millions#| fig-width: 12
-#| fig-width: 8
-#| fig-height: 4
-#| fig-dpi: 300
-
-# 1. Enhance Metadata
-lib_size <- data.frame(
-  Sample = colnames(data),
-  Counts_Millions = colSums(data) / 1e6
-) %>%
-  mutate(
-    Cell_Line = ifelse(str_detect(Sample, "LNCaP"), "LNCaP", "PC3"),
-    
-    # --- FIX: Set factor levels so Normoxia is first ---
-    Condition = factor(ifelse(str_detect(Sample, "Hypoxia"), "Hypoxia", "Normoxia"), 
-                       levels = c("Normoxia", "Hypoxia")),
-    
-    Replicate = str_extract(Sample, "(rep|siRNA)[1-2]$"),
-    Treatment = case_when(
-      str_detect(Sample, "EV") ~ "EV",
-      str_detect(Sample, "overexpress") ~ "OC2 OE",
-      str_detect(Sample, "siCtrl") ~ "siCtrl",
-      str_detect(Sample, "siOC2") ~ "siOC2",
-      TRUE ~ "Other"
-    )
-  )
-
-# 2. Plotting every sample separately
-ggplot(lib_size, aes(x = Condition, y = Counts_Millions, fill = Replicate)) +
-  geom_col(position = position_dodge(width = 0.8), width = 0.7, lineend = "round", linejoin = "round") +
-  # Nested facets: Cell_Line then Treatment
-  facet_grid(. ~ Cell_Line + Treatment, scales = "free_x", space = "free_x", switch = "x") +
-  # Using your professional muted palette (Teal for Rep1, Terracotta for Rep2)
-  scale_fill_manual(values = c(
-    "rep1" = "#16A085", "rep2" = "#0E6655",
-    "siRNA1" = "#16A085", "siRNA2" = "#0E6655"
-  )) +
-  theme_minimal() +
-  theme(
-    strip.placement = "outside",
-    strip.text = element_text(size = 8, face = "bold"),
-    axis.text.x = element_text(size = 7, angle = 45, hjust = 1),
-    panel.spacing.x = unit(1, "lines"),
-    legend.position = "top",
-    legend.title = element_text(size = 8),
-    legend.text = element_text(size = 7),
-    plot.title = element_text(hjust = 0.5, face = "bold", size = 10)
-  ) +
-  labs(
-    title = "Total counts: Normoxia vs Hypoxia by Replicate",
-    y = expression("Total Read Counts (" * 10^6 * ")"),
-    x = NULL # Removed "Experimental Groups" for a cleaner look since facets cover it
-  )
-```
-
-LNCap counts are relatively consistent across all samples while we observe variability even within replicates for PC3 samples for overall counts.
+PC3 samples have a significantly higher mitochondrial burden (\~45%) compared to LNCaP. This could mean a different metabolic profile or different response to the library preparation protocol between these cell lines. Note- its not a treatment or genetic perturbation effect as we see the similar mito content across all samples for PC3 samples.
