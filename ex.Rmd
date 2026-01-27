@@ -1,0 +1,79 @@
+---
+title: "extra scripts"
+output: html_document
+date: "2026-01-26"
+---
+
+
+```{r}
+#| fig-width: 10
+#| fig-height: 6
+#| fig-dpi: 300
+
+# rlog-transformed expression matrix
+rld_mat <- assay(rld_lncap)
+
+# Select top variable genes (base R only)
+rv <- apply(rld_mat, 1, var)
+topVarGenes <- head(order(rv, decreasing = TRUE), 100)
+
+# Subset matrix (genes x samples)
+mat <- rld_mat[topVarGenes, ]
+
+# Z-score by gene (row-wise scaling)
+mat_scaled <- t(scale(t(mat)))
+
+# Sample annotations
+annotation_col <- as.data.frame(
+  colData(rld_lncap)[, c("Treatment", "Genetic_perturbation")]
+)
+rownames(annotation_col) <- colnames(mat_scaled)
+
+# Plot heatmap with clustering on rows and columns
+pheatmap(
+  mat_scaled,
+  annotation_col = annotation_col,
+  show_rownames = TRUE, 
+  show_colnames = FALSE,
+  cluster_rows = TRUE,
+  cluster_cols = TRUE,
+  clustering_distance_cols = "correlation",
+  clustering_method = "average",
+  color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(100),
+  border_color = "grey",
+  # --- FIX OVERLAP ---
+  fontsize_row = 4,        # Shrunk to 4pt to prevent overlapping
+  treeheight_row = 0,     # Shrink tree to give more room to text
+  # --- LEGEND CONTROL ---
+  annotation_legend = TRUE,
+  legend = TRUE,
+  treeheight_col = 30,  
+  main = "Top 100 Variable Genes (rlog, Gene-wise Z-score)"
+)
+```
+```{r}
+{r}
+#| fig-width: 10
+#| fig-height: 6
+#| fig-dpi: 300
+
+#lets visualize the samples based on the genes that are most variable
+# rlog matrix
+rld_mat <- assay(rld_lncap)
+
+# Correlation of all samples across all genes
+rld_cor <- cor(rld_mat)
+
+# Sample annotations
+annotation_col <- meta_lncap
+pheatmap(
+  rld_cor,
+  annotation_col = annotation_col,
+  color = colorRampPalette(rev(brewer.pal(9, "RdBu")))(100),
+  clustering_method = "average",
+  border_color = "grey",
+  main = "Correlation between samples"
+)
+```
+
+

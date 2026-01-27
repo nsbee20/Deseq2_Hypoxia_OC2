@@ -11,7 +11,7 @@ format:
     theme: cosmo
 ---
 
-Summary This report details the initial Quality Control (QC) and exploratory analysis of transcriptomic data from LNCaP and PC3 prostate cancer cell lines under genetic perturbation (https://pubmed.ncbi.nlm.nih.gov/30655535/). The goal is to evaluate sequencing depth and library composition (Mitochondrial vs. Ribosomal content) across treatment/replicate conditions prior to differential expression analysis.
+Summary: This report details the initial Quality Control (QC) and exploratory analysis of transcriptomic data from LNCaP and PC3 prostate cancer cell lines under genetic perturbation (https://pubmed.ncbi.nlm.nih.gov/30655535/). The goal is to evaluate sequencing depth and library composition (Mitochondrial vs. Ribosomal content) across treatment/replicate conditions prior to differential expression analysis.
 
 ```{r}
 #| results: false
@@ -82,7 +82,7 @@ ggplot(lib_size, aes(x = Condition, y = Counts_Millions, fill = Replicate)) +
   theme(strip.placement = "outside", 
         strip.text = element_text(size = 9, face = "bold"),
         legend.position = "top") +
-  labs(title = "Sequencing Depth Distribution",
+  labs(title = "Total counts per sample",
        y = "Total Read Counts (Million)", x = NULL)
 ```
 
@@ -144,19 +144,19 @@ ggplot(corr_data, aes(x = log2(Rep_1 + 1), y = log2(Rep_2 + 1))) +
            fontface = "bold") +
   theme_minimal() +
   theme(
-    strip.text = element_text(size = 10, face = "bold"),
+    strip.text = element_text(size = 12, face = "bold"),
     legend.position = "right",
     plot.title = element_text(face = "bold", hjust = 0.5)
   ) +
   labs(
-    title = "Replicate Reproducibility",
+    title = "Correlation between replicates",
     x = "Rep-1 Log2(Count + 1)",
     y = "Rep-2 Log2(Count + 1)",
-    fill = "Gene Count"
+    fill = "Gene Count",
   )
 ```
 
-Replicates demonstrate high correlation (R >= 0.95), indicating robust reproducibility across all experimental conditions.
+Replicates demonstrate high correlation (R \>= 0.95), indicating robust reproducibility across all experimental conditions.
 
 ## 3. Library Composition
 
@@ -187,22 +187,22 @@ pref_colors <- c(
 #plot the top genes
 ggplot(top_genes_plot_data, aes(y = Gene_Sorted, x = Counts, fill = Gene)) +
   geom_col(show.legend = FALSE, width = 0.8) +
-  geom_text(aes(label = Gene), hjust = 1.1, size = 3, color = "white", fontface = "bold") +
+  geom_text(aes(label = Gene), hjust = 1.1, size = 5, color = "white", fontface = "bold") +
   tidytext::scale_y_reordered() +
   scale_x_log10(labels = scales::label_log(), breaks = scales::log_breaks(n = 3)) +
   facet_wrap(~Sample, scales = "free_y", ncol = 4) + 
   scale_fill_manual(values = pref_colors) +
   theme_minimal() +
   theme(axis.text.y = element_blank(),
-        strip.text = element_text(face = "bold", size = 8),
+        strip.text = element_text(face = "bold", size = 11),
         strip.background = element_rect(fill = "#F4F6F7", color = NA)) +
-  labs(title = "Top 3 Most Highly Expressed Genes per Replicate",
+  labs(title = "Top 3 Most Highly Expressed Genes per sample",
        x = "Raw Read Counts (Log10)", y = NULL)
 ```
 
-The most abundant transcripts are consistent across samples within each cell line. Mitochondrial genes and *RNA45SN* dominate across samples. Crucially, *ONECUT2* appears as a top gene in overexpression samples, validating the experimental perturbation and analysis.
+The most abundant transcripts are consistent across samples. Mitochondrial and *RNA45SN* genes dominate across samples. Crucially, *ONECUT2* appears as a top gene in OC2 overexpression samples, validating the experimental setup.
 
-Given the prevalence of mitochondrial transcripts, lets quantify the exact proportion of the library they occupy per sample. Additionally, we can inspect the ribosomal content to confirm the efficiency of the Poly-A selection, ensuring that mature mRNA was successfully enriched.
+Given the prevalence of mitochondrial transcripts, lets quantify the exact proportion of the library they occupy per sample. Additionally, we can inspect the ribosomal content to confirm the efficiency of the Poly-A selection.
 
 ```{r}
 #| fig-width: 10
@@ -225,6 +225,7 @@ qc_summary <- data %>%
   mutate(Percentage = (Type_Total / sum(Type_Total)) * 100,
          Cell_Line = ifelse(str_detect(Sample, "LNCaP"), "LNCaP", "PC3"))
 
+#plotting 
 ggplot(qc_summary, aes(x = Sample, y = Percentage, fill = Type)) +
   geom_col(width = 0.7) +
   geom_text(aes(label = paste0(round(Percentage, 0), "%")), 
@@ -233,7 +234,7 @@ ggplot(qc_summary, aes(x = Sample, y = Percentage, fill = Type)) +
   scale_fill_manual(values = c("Nuclear/Other" = "#117A65", "Mitochondrial" = "#C0392B", "Ribosomal" = "#F39C12")) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 60, hjust = 1), legend.position = "right") +
-  labs(title = "Library Composition Analysis", y = "Percentage of Total Reads", x = NULL)
+  labs(title = "Library Composition by Gene Category", y = "Percentage of Total Reads", x = NULL)
 ```
 
-PC3 samples have a significantly higher mitochondrial burden (\~45%) compared to LNCaP. This could mean a different metabolic profile or different response to the library preparation protocol between these cell lines. Note- its not a treatment or genetic perturbation effect as we see the similar mito content across all samples for PC3 samples.
+PC3 samples have a significantly higher mitochondrial burden (\~45%) compared to LNCaP. This could be result of a different metabolic profile or technical artifacts between the two cell lines.
