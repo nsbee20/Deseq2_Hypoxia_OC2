@@ -29,6 +29,7 @@ library(pheatmap)
 library(RColorBrewer)
 library(patchwork)
 library(ggplotify)
+library(patchwork)
 # Resolve namespace conflicts
 conflict_prefer("select", "dplyr")
 conflict_prefer("filter", "dplyr")
@@ -141,11 +142,15 @@ lncap_QC$heatmap
 
 For LNCaP cells, the replicates cluster together based on the treatment and genetic perturbation as expected.
 
-```{}
-```
-
 ```{r}
 #lets perform differential expression analysis using deseq2 to ask various questions. 
+#releveling to set reference for treatment and perturbation
+dds_pc3$Treatment <- relevel(dds_pc3$Treatment, ref = "Normoxia")
+dds_pc3$Genetic_perturbation <- relevel(dds_pc3$Genetic_perturbation, ref = "siCtrl")
+
+dds_lncap$Treatment <- relevel(dds_lncap$Treatment, ref = "Normoxia")
+dds_lncap$Genetic_perturbation <- relevel(dds_lncap$Genetic_perturbation, ref = "Empty_vector")
+
 dds_lncap <- DESeq(dds_lncap)
 dds_pc3<-DESeq(dds_pc3)
 ```
@@ -155,3 +160,92 @@ You can see various steps that are performed by this function. Briefly,
 1\) We normalize each sample with their respective size factors calculated by using median of ratios method.
 
 2\) As the
+
+```{r}
+#| fig-width: 12
+#| fig-height: 5
+#| fig-dpi: 300
+# Set the graphics device to 1 row and 2 columns
+par(mfrow = c(1, 2))
+
+# Plot for LNCaP with a custom title
+plotDispEsts(dds_lncap, main = "Dispersion Estimates: LNCaP")
+
+# Plot for PC3 with a custom title
+plotDispEsts(dds_pc3, main = "Dispersion Estimates: PC3")
+
+# Reset the graphics device to default (1x1)
+par(mfrow = c(1, 1))
+```
+
+The fit looks good. We can see the fitted (Red) smoothly follows the data points and shrinkage in dispersion (blue dots) towards fitted curve nicely. Also, notice a nice downward trend in dispersion as mean increases. You can observe some final dispersion and estimated values perfectly overlap these are genes that are shrunk as they are too far away from the fitted line.
+
+```{r}
+#lets understand the genes that are differential expressed under hypoxia condition. 
+# PC3: Hypoxia vs Normoxia (within siCtrl)
+res_pc3_hypoxia <- results(dds_pc3, 
+                           contrast = c("Treatment", "Hypoxia", "Normoxia"))
+
+# LNCaP: Hypoxia vs Normoxia (within empty vector)
+res_lncap_hypoxia <- results(dds_lncap, 
+                             contrast = c("Treatment", "Hypoxia", "Normoxia"))
+
+```
+
+```{r}
+#| fig-width: 20
+#| fig-height: 8
+#| fig-dpi: 300
+library(EnhancedVolcano)
+
+# Function to generate consistent volcano plots
+plot_volcano <- function(res, title_str) {
+  # Convert to data frame to handle logical indexing
+  df <- as.data.frame(res)
+  
+  # 2. Create a new column for the capped -log10 padj
+  # We use -log10() on the padj and then pmin() to set the max at 100
+  #df$log_padj_capped <- -log10(df$padj)
+  #df$log_padj_capped <- pmin(df$log_padj_capped, 100, na.rm = FALSE)
+  
+  # Create a custom color vector
+  keyvals <- ifelse(
+    df$padj < 0.05 & df$log2FoldChange > 1.0, 'red3',
+      ifelse(df$padj < 0.05 & df$log2FoldChange < -1.0, 'royalblue',
+        'grey'))
+  #Convert any remaining NAs to 'grey'
+  keyvals[is.na(keyvals)] <- 'grey'
+  
+  # Ensure the vector has names for the legend
+  names(keyvals)[keyvals == 'red3'] <- 'Upregulated'
+  names(keyvals)[keyvals == 'grey'] <- 'NS / Low Fold'
+  names(keyvals)[keyvals == 'royalblue'] <- 'Downregulated'
+
+  EnhancedVolcano(res,
+    lab = rownames(res),
+    x = 'log2FoldChange',
+    y = 'log_padj_capped', 
+    title = title_str,
+    subtitle = NULL,      # Removes the "EnhancedVolcano" subtitle
+    caption = NULL,       # Removes the "total variables" footer
+    ylab = bquote(~-Log[10] ~ italic(padj)), # Corrects the axis label
+    pCutoff = 0.05,
+    FCcutoff = 1.0, 
+    colCustom = keyvals, # Use the custom color vector
+    labSize = 4.0,
+    colAlpha = 0.6,
+    legendPosition = 'right',
+    drawConnectors = TRUE,
+    widthConnectors = 0.5
+  )
+}
+
+# Generate plots for both cell lines
+v_pc3 <- plot_volcano(res_pc3_hypoxia, "PC3: Hypoxia vs Normoxia (siCtrl)")
+v_lncap <- plot_volcano(res_lncap_hypoxia, "LNCaP: Hypoxia vs Normoxia (Empty vector)")
+
+# Display side-by-side using patchwork
+
+v_pc3 +v_lncap
+
+```
