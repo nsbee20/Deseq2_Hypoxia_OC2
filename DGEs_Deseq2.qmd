@@ -130,7 +130,7 @@ For PC3 samples, we see an interesting behavior. We see a strong separation betw
 pc3_QC$heatmap
 ```
 
-Based on the heatmap, we see another latent variable- the siRNA used. We can see the siRNA specific samples cluster more strongly together regardless of the treatment. Theoretically, if the treatment effects are stronger we would expect the siRNA1 and siRNA2 to cluster together based on the treatment. However, we see a stronger correlation between the same siRNA's used for knockdown of OC2 regardless of the treatment. This could perhaps be a result of knockdown of OC2 which rescues some aspects of hypoxia driven cellular changes (not fully). Moreover, we also see the siRNA's under normoxia cluster separately so there could be some off target activity of the specific siRNA used to knockdown OC2.
+Based on the heatmap, we see another latent variable- the siRNA used. We can see the siRNA specific samples cluster more strongly together regardless of the treatment. Theoretically, if the treatment effects are stronger we would expect the siRNA1 and siRNA2 to cluster together based on the treatment. However, we see a stronger correlation between the same siRNA's used for knockdown of OC2 regardless of the treatment. This could perhaps be a result of knockdown of OC2 which rescues some aspects of hypoxia driven cellular changes (not fully). However, we also see the siRNA's under normoxia cluster separately so there could be some off target activity of the specific siRNA used to knockdown OC2.
 
 ```{r}
 #| fig-width: 8
@@ -140,10 +140,10 @@ Based on the heatmap, we see another latent variable- the siRNA used. We can see
 lncap_QC$heatmap
 ```
 
-For LNCaP cells, the replicates cluster together based on the treatment and genetic perturbation as expected.
+For LNCaP cells, the replicates cluster together based on the treatment and genetic perturbation as expected. Next, lets perform differential expression analysis using Deseq2 to ask various questions.
 
 ```{r}
-#lets perform differential expression analysis using deseq2 to ask various questions. 
+#
 #releveling to set reference for treatment and perturbation
 dds_pc3$Treatment <- relevel(dds_pc3$Treatment, ref = "Normoxia")
 dds_pc3$Genetic_perturbation <- relevel(dds_pc3$Genetic_perturbation, ref = "siCtrl")
@@ -193,6 +193,7 @@ res_lncap_hypoxia <- results(dds_lncap,
 ```
 
 ```{r}
+#| message: false
 #| fig-width: 20
 #| fig-height: 8
 #| fig-dpi: 300
@@ -213,6 +214,7 @@ plot_volcano <- function(res, title_str) {
     df$padj < 0.05 & df$log2FoldChange > 1.0, 'red3',
       ifelse(df$padj < 0.05 & df$log2FoldChange < -1.0, 'royalblue',
         'grey'))
+  
   #Convert any remaining NAs to 'grey'
   keyvals[is.na(keyvals)] <- 'grey'
   
@@ -224,7 +226,7 @@ plot_volcano <- function(res, title_str) {
   EnhancedVolcano(res,
     lab = rownames(res),
     x = 'log2FoldChange',
-    y = 'log_padj_capped', 
+    y = 'padj', 
     title = title_str,
     subtitle = NULL,      # Removes the "EnhancedVolcano" subtitle
     caption = NULL,       # Removes the "total variables" footer
@@ -232,11 +234,14 @@ plot_volcano <- function(res, title_str) {
     pCutoff = 0.05,
     FCcutoff = 1.0, 
     colCustom = keyvals, # Use the custom color vector
-    labSize = 4.0,
+    labSize = 5,
     colAlpha = 0.6,
     legendPosition = 'right',
     drawConnectors = TRUE,
-    widthConnectors = 0.5
+    widthConnectors = 0.5,
+    max.overlaps = 20,          # Limits label clutter
+    lengthConnectors = unit(0.01, "npc"), # Length of the lines
+    
   )
 }
 
@@ -244,8 +249,95 @@ plot_volcano <- function(res, title_str) {
 v_pc3 <- plot_volcano(res_pc3_hypoxia, "PC3: Hypoxia vs Normoxia (siCtrl)")
 v_lncap <- plot_volcano(res_lncap_hypoxia, "LNCaP: Hypoxia vs Normoxia (Empty vector)")
 
-# Display side-by-side using patchwork
+# Display side-by-side
+ v_lncap+v_pc3
+```
 
-v_pc3 +v_lncap
+We can see some a good number of genes that are differential expressed. For PC3 samples, we can see some well known genes regulated under hypoxic conditions such as ANGPTL4 and NDRG1. Lets do a sanity check for the differential expressed genes are consistent with the known biology. Lets perform pathway enrichment on these DEGs to understand the pathways regulated.
 
+```{r}
+library(clusterProfiler)
+library(org.Hs.eg.db)
+
+# Helper function to get Entrez IDs for significant genes
+get_sig_genes <- function(res) {
+  # Filter for padj < 0.05 and |LFC| > 1
+  sig <- subset(res, padj < 0.05 & abs(log2FoldChange) > 1)
+  
+  # Convert Gene Symbols (rownames) to Entrez IDs
+  ids <- bitr(rownames(sig), fromType = "SYMBOL", 
+              toType = "ENTREZID", OrgDb = org.Hs.eg.db)
+  return(ids$ENTREZID)
+}
+
+genes_pc3 <- get_sig_genes(res_pc3_hypoxia)
+genes_lncap <- get_sig_genes(res_lncap_hypoxia)
+```
+
+```{r}
+# Run Enrichment for PC3
+kegg_pc3 <- enrichKEGG(gene = genes_pc3, organism = 'hsa', pvalueCutoff = 0.05)
+
+# Run Enrichment for LNCaP
+kegg_lncap <- enrichKEGG(gene = genes_lncap, organism = 'hsa', pvalueCutoff = 0.05)
+library(ggplot2)
+
+# Plotting the top 10 pathways
+p1 <- dotplot(kegg_pc3, showCategory = 10) + ggtitle("PC3 Hypoxia Pathways")
+p2 <- dotplot(kegg_lncap, showCategory = 10) + ggtitle("LNCaP Hypoxia Pathways")
+
+p1
+p2
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+#| fig-width: 10
+#| fig-height: 20
+#| fig-dpi: 300
+
+library(ggplot2)
+library(dplyr)
+
+# Function to plot -log10(padj) on the x-axis
+plot_pathway_log <- function(kegg_res, title_str) {
+  # 1. Convert to data frame and take the top 20 pathways
+  df <- as.data.frame(kegg_res) %>%
+    slice_head(n = 20) %>%
+    # 2. Perform the transformation
+    # We use -log10 so that smaller padj values become larger positive numbers
+    mutate(neg_log_padj = -log10(p.adjust))
+  
+  # 3. Reorder Description based on the new log value for a clean "waterfall" look
+  df$Description <- factor(df$Description, levels = df$Description[order(df$neg_log_padj)])
+
+  ggplot(df, aes(x = neg_log_padj, y = Description)) +
+    # Draw the horizontal lines
+    geom_segment(aes(x = 0, xend = neg_log_padj, y = Description, yend = Description), color = "lightgrey") +
+    # Draw the points
+    geom_point(aes(size = Count, color = neg_log_padj)) +
+    # Color scale: Red for highest significance, blue for lower
+    scale_color_gradient(low = "royalblue", high = "red3") +
+    theme_minimal() +
+    labs(
+      title = title_str,
+      x = expression(-log[10](italic(padj))), # Scientific notation for the axis label
+      y = "Pathway Description",
+      size = "Gene Count",
+      color = expression(-log[10](italic(padj)))
+    ) +
+    # Add a vertical line for the 0.05 significance threshold 
+    # -log10(0.05) is approximately 1.3
+    geom_vline(xintercept = 1.3, linetype = "dashed", color = "black") +
+    annotate("text", x = 1.3, y = 1, label = "p=0.05", hjust = -0.1, size = 3)
+}
+
+# Run for both cell lines
+p_pc3_log <- plot_pathway_log(kegg_pc3, "PC3: Pathway Significance (-log10)")
+p_lncap_log <- plot_pathway_log(kegg_lncap, "LNCaP: Pathway Significance (-log10)")
+
+p_pc3_path
+p_lncap_path
 ```
