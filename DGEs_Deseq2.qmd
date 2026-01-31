@@ -3,7 +3,7 @@ title: "Differential Gene expression analysis using Deseq2"
 author: "Nitin Beesabathuni"
 date: "`r Sys.Date()`"
 format: 
-  html:
+  gfm:
     toc: true
     toc-depth: 2
     code-fold: true
@@ -107,12 +107,11 @@ pc3_QC<-QC_pca_heatmap(dds_pc3, meta_pc3,cell_line_name = "PC3")
 
 # For LNCaP
 lncap_QC<-QC_pca_heatmap(dds_lncap, meta_lncap,cell_line_name = "LNCaP")
-
 ```
 
 ```{r}
-#| fig-width: 8
-#| fig-height: 5
+#| fig-width: 10
+#| fig-height: 3
 #| fig-dpi: 300
 #PCA for both the cell lines across two treatments and genetic perturbations. 
 lncap_QC$pca+ pc3_QC$pca 
@@ -123,8 +122,8 @@ For LNCaP samples, PCA reveals four well-separated clusters corresponding to the
 PC3 samples exhibit a different structure. PCA shows a strong separation between siCtrl and siOC2 conditions; however, within the siOC2 group, samples further separate into two distinct clusters- not based on the treatment. This suggesting the presence of an additional latent variable. To investigate this further, lets examine sample correlation using heatmaps.
 
 ```{r}
-#| fig-width: 20
-#| fig-height: 8
+#| fig-width: 8
+#| fig-height: 5
 #| fig-dpi: 300
 #heatmap for pc3 cells
 pc3_QC$heatmap
@@ -185,14 +184,14 @@ plotDispEsts(dds_lncap, main = "Dispersion Estimates: LNCaP")
 
 # Plot for PC3 with a custom title
 plotDispEsts(dds_pc3, main = "Dispersion Estimates: PC3")
-
-# Reset the graphics device to default (1x1)
-par(mfrow = c(1, 1))
 ```
 
 The fit looks good. We can see the fitted (Red) smoothly follows the data points and shrinkage in dispersion (blue dots) towards fitted curve nicely. Also, notice a nice downward trend in dispersion as mean increases. We can also observe some final dispersion and estimated values perfectly overlap, these are genes that are not shrunk towards the fitted line.
 
 ```{r}
+# Reset the graphics device to default (1x1)
+par(mfrow = c(1, 1))
+
 #lets understand the genes that are differential expressed under hypoxia condition. 
 # PC3: Hypoxia vs Normoxia (within siCtrl)
 res_pc3_hypoxia <- results(dds_pc3, 

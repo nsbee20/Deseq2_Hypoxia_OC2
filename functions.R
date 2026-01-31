@@ -55,7 +55,7 @@ QC_pca_heatmap <- function(dds,metadata,cell_line_name) {
     fontsize_col = 8,
     legend = TRUE,
     legend_width = 0.001,silent = TRUE
-  ))+ theme(base_size=16))
+  ))+ theme_minimal(base_size=16))
   
   return(list(pca = pca, heatmap = heat_p))
 }
