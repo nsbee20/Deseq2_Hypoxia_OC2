@@ -45,7 +45,7 @@ conflict_prefer("filter", "dplyr")
 conflicts_prefer(generics::setdiff)
 
 #loading functions
-source("functions.R")
+source(here("scripts","functions.R"))
 ```
 
 </details>
@@ -64,7 +64,7 @@ downstream modeling relies on the correctness of these annotations.
 
 ``` r
 # Loading cleaned and annotated data for both cell types
-data <- read.csv("analysis_ready_count_data.csv", row.names = 1, check.names = FALSE)
+data <- read.csv(here("data","analysis_ready_count_data.csv"), row.names = 1, check.names = FALSE)
 
 #Separting data for both cell types into their respective dfs
 
@@ -385,7 +385,6 @@ technical factors.
 <summary>Code</summary>
 
 ``` r
-source("functions.R")
 # Generate plots for both cell lines
 v_pc3 <- plot_volcano(res_pc3_hypoxia, "PC3: Hypoxia vs Normoxia (siCtrl)")
 ```
@@ -433,7 +432,6 @@ pathways are identified.
 
 ``` r
 # extract 
-source("functions.R")
 get_sig_genes <- function(res) {
   # Filter for padj < 0.05 and |LFC| > 1
   sig <- subset(res, padj < 0.05 & abs(log2FoldChange) > 1)

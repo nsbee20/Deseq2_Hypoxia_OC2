@@ -37,7 +37,7 @@ conflict_prefer("filter", "dplyr")
 conflicts_prefer(generics::setdiff)
 
 #loading functions
-source("functions.R")
+source(here("scripts","functions.R"))
 ```
 
 ## 1. Data Import and Metadata Preparation
@@ -46,7 +46,7 @@ We begin by importing an annotated gene-level count matrix, using gene symbols a
 
 ```{r}
 # Loading cleaned and annotated data for both cell types
-data <- read.csv("analysis_ready_count_data.csv", row.names = 1, check.names = FALSE)
+data <- read.csv(here("data","analysis_ready_count_data.csv"), row.names = 1, check.names = FALSE)
 
 #Separting data for both cell types into their respective dfs
 
@@ -230,7 +230,6 @@ Overall, we identify a larger number of DEGs in LNCaP cells compared to PC3 cell
 #| fig-height: 8
 #| fig-dpi: 300
 
-source("functions.R")
 # Generate plots for both cell lines
 v_pc3 <- plot_volcano(res_pc3_hypoxia, "PC3: Hypoxia vs Normoxia (siCtrl)")
 v_lncap <- plot_volcano(res_lncap_hypoxia, "LNCaP: Hypoxia vs Normoxia (Empty vector)")
@@ -247,7 +246,6 @@ We can see some a good number of genes that are differential expressed. For PC3 
 #| fig-height: 5
 #| fig-dpi: 300
 # extract 
-source("functions.R")
 get_sig_genes <- function(res) {
   # Filter for padj < 0.05 and |LFC| > 1
   sig <- subset(res, padj < 0.05 & abs(log2FoldChange) > 1)

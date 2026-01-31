@@ -9,7 +9,7 @@ library(conflicted)
 
 # Load raw count data from TSV file
 # Using as.data.frame to ensure compatibility with AnnotationDbi and base R merging
-raw_data <- as.data.frame(read_tsv("raw_counts.tsv"))
+raw_data <- as.data.frame(read_tsv(here("data","raw_counts.tsv")))
 
 # --- DATA FILTERING AND SAMPLE RENAMING ---
 
@@ -68,7 +68,7 @@ annotated_data <- merge(raw_data, annotations, by.x = "GeneID", by.y = "ENTREZID
 # Export the final annotated data frame to a CSV file for downstream analysis
 # row.names is set to FALSE to prevent writing the numeric index column
 write.csv(annotated_data, 
-          file = "annotated_raw_data.csv", 
+          file = here("data","annotated_raw_data.csv"), 
           row.names = FALSE)
 
 
@@ -122,9 +122,9 @@ message("Rows removed (all zeros): ", sum(!keep_non_zero))
 stopifnot(identical(rownames(count_data_fil), metadata_gene_fil$Unique_Symbol))
 
 write.csv(count_data_fil, 
-          file = "analysis_ready_count_data.csv", 
+          file = here("data","analysis_ready_count_data.csv"), 
           row.names = T)
 
 write.csv(metadata_gene_fil, 
-          file = "gene_meatadata_analysis_ready_count.csv", 
+          file = here("data","gene_meatadata_analysis_ready_count.csv"), 
           row.names = F)

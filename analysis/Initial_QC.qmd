@@ -38,10 +38,10 @@ Importing the annotated count matrix. Gene symbols are used as primary identifie
 ```{r}
 # Loading cleaned and annotated data
 # check.names = FALSE ensures sample IDs containing dashes/special characters remain intact
-data <- read.csv("analysis_ready_count_data.csv", row.names = 1, check.names = FALSE)
+data <- read.csv(here("data","analysis_ready_count_data.csv"), row.names = 1, check.names = FALSE)
 
 # Display data structure
-head(data) %>% gt(rownames_to_stub = TRUE)
+head(data)%>% gt(rownames_to_stub = TRUE)
 
 ```
 
@@ -52,6 +52,7 @@ Lets first evaluate the total read counts per sample to identify potential libra
 ```{r}
 #| fig-width: 10
 #| fig-height: 5
+#| fig-dpi: 300
 #| fig-cap: "Figure 1: Total library sizes grouped by Cell Line, Treatment, and Genetic perturbation."
 
 lib_size <- data.frame(
@@ -91,6 +92,7 @@ LNCaP samples show consistent read depths across conditions. Conversly, PC3 repl
 ```{r}
 #| fig-width: 10
 #| fig-height: 5
+#| fig-dpi: 300
 #| fig-cap: "Figure 2: Distribution of Log2-transformed counts."
 
 data_long <- data %>%
@@ -207,6 +209,7 @@ Given the prevalence of mitochondrial transcripts, lets quantify the exact propo
 ```{r}
 #| fig-width: 10
 #| fig-height: 5
+#| fig-dpi: 300
 #| fig-cap: "Figure-5: "
 #| 
 qc_summary <- data %>%
