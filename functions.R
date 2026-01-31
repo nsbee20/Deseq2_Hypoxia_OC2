@@ -4,6 +4,8 @@ library(pheatmap)
 library(patchwork)
 library(ggplotify)
 library(RColorBrewer)
+library(clusterProfiler)
+library(EnhancedVolcano)
 
 QC_pca_heatmap <- function(dds,metadata,cell_line_name) {
   
@@ -40,7 +42,7 @@ QC_pca_heatmap <- function(dds,metadata,cell_line_name) {
   rownames(annotation_col) <- gsub("PC3_|LNCaP_", "", rownames(annotation_col))
   
   # Capture pheatmap as a ggplot-compatible object
-  heat_p<-as.ggplot(pheatmap(
+  heat_p<-(as.ggplot(pheatmap(
     rld_cor,
     annotation_col = annotation_col,
     color = colorRampPalette(rev(brewer.pal(9, "RdBu")))(100),
@@ -53,7 +55,99 @@ QC_pca_heatmap <- function(dds,metadata,cell_line_name) {
     fontsize_col = 8,
     legend = TRUE,
     legend_width = 0.001,silent = TRUE
-  ))
+  ))+ theme(base_size=16))
   
   return(list(pca = pca, heatmap = heat_p))
+}
+
+
+# Function to generate consistent volcano plots
+plot_volcano <- function(res, title_str,...) {
+  # Convert to data frame to handle logical indexing
+  df <- as.data.frame(res)
+  top_labels <- head(rownames(res[order(res$padj), ]), 30)
+  
+  # Create a custom color vector
+  keyvals <- ifelse(
+    df$padj < 0.05 & df$log2FoldChange > 1.0, 'red3',
+    ifelse(df$padj < 0.05 & df$log2FoldChange < -1.0, 'royalblue',
+           'grey'))
+  
+  #Convert any remaining NAs to 'grey'
+  keyvals[is.na(keyvals)] <- 'grey'
+  
+  # Ensure the vector has names for the legend
+  names(keyvals)[keyvals == 'red3'] <- 'Upregulated'
+  names(keyvals)[keyvals == 'grey'] <- 'NS / Low Fold'
+  names(keyvals)[keyvals == 'royalblue'] <- 'Downregulated'
+  
+  EnhancedVolcano(res,
+                  lab = rownames(res),
+                  selectLab = top_labels,
+                  x = 'log2FoldChange',
+                  y = 'padj', 
+                  title = title_str,
+                  subtitle = NULL,      # Removes the "EnhancedVolcano" subtitle
+                  caption = NULL,       # Removes the "total variables" footer
+                  ylab = bquote(~-Log[10] ~ italic(padj)), 
+                  pCutoff = 0.05,
+                  FCcutoff = 1.0, 
+                  colCustom = keyvals, # Use the custom color vector
+                  labSize = 5,
+                  colAlpha = 0.6,
+                  drawConnectors = TRUE,
+                  widthConnectors = 0.5,
+                  max.overlaps = 20,          # Limits label clutter
+                  lengthConnectors = unit(0.01, "npc"), # Length of the lines
+                  ...
+  )
+}
+
+#function for plotting kegg pathways enriched in the DEGs
+plot_kegg_pathways<- function(gene_list, title_str, p_cutoff = 0.05, max_pathways = 20) {
+  
+  # 1. Run the KEGG enrichment inside the function
+  kegg_res <- clusterProfiler::enrichKEGG(
+    gene = gene_list, 
+    organism = 'hsa', 
+    pvalueCutoff = p_cutoff
+  )
+  
+  # 2. Convert to data frame
+  df <- as.data.frame(kegg_res)
+  
+  # 3. Check if any pathways were found
+  if (nrow(df) == 0) {
+    return(message("No enriched pathways found for ", title_str, " at p < ", p_cutoff))
+  }
+  
+  # 4. Filter to top N and calculate -log10(padj)
+  df <- df[1:min(max_pathways, nrow(df)), ] 
+  df$neg_log_padj <- -log10(df$p.adjust)
+  
+  # 5. Reorder factor levels for the y-axis (most significant at top)
+  df$Description <- factor(df$Description, 
+                           levels = df$Description[order(df$neg_log_padj)])
+  
+  # 6. Build the Plot
+  ggplot2::ggplot(df, aes(x = neg_log_padj, y = Description)) +
+    geom_segment(aes(x = 0, xend = neg_log_padj, y = Description, yend = Description), 
+                 color = "lightgrey") +
+    # Color is outside aes() to avoid the legend
+    geom_point(aes(size = Count), color = "#f8766d") + 
+    theme_minimal(base_size = 16) +
+    labs(
+      title = title_str,
+      x = expression(-log[10](italic(padj))), 
+      y = "Pathway",
+      size = "Gene Count"
+    ) +
+    theme(
+      plot.title = element_text(hjust = 0, face = "bold", size = 12),
+      #panel.grid.minor = element_blank(),
+      #panel.grid.major.y = element_blank(),
+      legend.position = "right"
+    ) +
+    # Dashed line at the significance threshold
+    geom_vline(xintercept = -log10(p_cutoff), linetype = "dashed", color = "black")
 }
