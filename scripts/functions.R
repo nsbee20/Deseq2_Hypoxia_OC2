@@ -55,7 +55,13 @@ QC_pca_heatmap <- function(dds,metadata,cell_line_name) {
     fontsize_col = 8,
     legend = TRUE,
     legend_width = 0.001,silent = TRUE
-  ))+ theme_minimal(base_size=16))
+  ))+ theme_void() + 
+    theme(
+      # Ensure the title still shows up and is positioned correctly
+      plot.title = element_text(size = 16, face = "bold", hjust = 0.5, margin = margin(b = 10)),
+      # Force white background for GitHub rendering
+      plot.background = element_rect(fill = "white", color = NA)
+    ))
   
   return(list(pca = pca, heatmap = heat_p))
 }

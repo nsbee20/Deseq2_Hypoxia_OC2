@@ -55,20 +55,20 @@ head(data)%>% gt(rownames_to_stub = TRUE)
 
 </details>
 
-<div id="ipfhifqecr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ipfhifqecr table {
+<div id="poojdxfwzo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#poojdxfwzo table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-&#10;#ipfhifqecr thead, #ipfhifqecr tbody, #ipfhifqecr tfoot, #ipfhifqecr tr, #ipfhifqecr td, #ipfhifqecr th {
+&#10;#poojdxfwzo thead, #poojdxfwzo tbody, #poojdxfwzo tfoot, #poojdxfwzo tr, #poojdxfwzo td, #poojdxfwzo th {
   border-style: none;
 }
-&#10;#ipfhifqecr p {
+&#10;#poojdxfwzo p {
   margin: 0;
   padding: 0;
 }
-&#10;#ipfhifqecr .gt_table {
+&#10;#poojdxfwzo .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -93,11 +93,11 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   border-left-width: 2px;
   border-left-color: #D3D3D3;
 }
-&#10;#ipfhifqecr .gt_caption {
+&#10;#poojdxfwzo .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
-&#10;#ipfhifqecr .gt_title {
+&#10;#poojdxfwzo .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -108,7 +108,7 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   border-bottom-color: #FFFFFF;
   border-bottom-width: 0;
 }
-&#10;#ipfhifqecr .gt_subtitle {
+&#10;#poojdxfwzo .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -119,7 +119,7 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   border-top-color: #FFFFFF;
   border-top-width: 0;
 }
-&#10;#ipfhifqecr .gt_heading {
+&#10;#poojdxfwzo .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -130,12 +130,12 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   border-right-width: 1px;
   border-right-color: #D3D3D3;
 }
-&#10;#ipfhifqecr .gt_bottom_border {
+&#10;#poojdxfwzo .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
-&#10;#ipfhifqecr .gt_col_headings {
+&#10;#poojdxfwzo .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -149,7 +149,7 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   border-right-width: 1px;
   border-right-color: #D3D3D3;
 }
-&#10;#ipfhifqecr .gt_col_heading {
+&#10;#poojdxfwzo .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -168,7 +168,7 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   padding-right: 5px;
   overflow-x: hidden;
 }
-&#10;#ipfhifqecr .gt_column_spanner_outer {
+&#10;#poojdxfwzo .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -179,13 +179,13 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   padding-left: 4px;
   padding-right: 4px;
 }
-&#10;#ipfhifqecr .gt_column_spanner_outer:first-child {
+&#10;#poojdxfwzo .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
-&#10;#ipfhifqecr .gt_column_spanner_outer:last-child {
+&#10;#poojdxfwzo .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
-&#10;#ipfhifqecr .gt_column_spanner {
+&#10;#poojdxfwzo .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -196,10 +196,10 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   display: inline-block;
   width: 100%;
 }
-&#10;#ipfhifqecr .gt_spanner_row {
+&#10;#poojdxfwzo .gt_spanner_row {
   border-bottom-style: hidden;
 }
-&#10;#ipfhifqecr .gt_group_heading {
+&#10;#poojdxfwzo .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -224,7 +224,7 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   vertical-align: middle;
   text-align: left;
 }
-&#10;#ipfhifqecr .gt_empty_group_heading {
+&#10;#poojdxfwzo .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -238,13 +238,13 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   border-bottom-color: #D3D3D3;
   vertical-align: middle;
 }
-&#10;#ipfhifqecr .gt_from_md > :first-child {
+&#10;#poojdxfwzo .gt_from_md > :first-child {
   margin-top: 0;
 }
-&#10;#ipfhifqecr .gt_from_md > :last-child {
+&#10;#poojdxfwzo .gt_from_md > :last-child {
   margin-bottom: 0;
 }
-&#10;#ipfhifqecr .gt_row {
+&#10;#poojdxfwzo .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -262,7 +262,7 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   vertical-align: middle;
   overflow-x: hidden;
 }
-&#10;#ipfhifqecr .gt_stub {
+&#10;#poojdxfwzo .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -274,7 +274,7 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   padding-left: 5px;
   padding-right: 5px;
 }
-&#10;#ipfhifqecr .gt_stub_row_group {
+&#10;#poojdxfwzo .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -287,13 +287,13 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   padding-right: 5px;
   vertical-align: top;
 }
-&#10;#ipfhifqecr .gt_row_group_first td {
+&#10;#poojdxfwzo .gt_row_group_first td {
   border-top-width: 2px;
 }
-&#10;#ipfhifqecr .gt_row_group_first th {
+&#10;#poojdxfwzo .gt_row_group_first th {
   border-top-width: 2px;
 }
-&#10;#ipfhifqecr .gt_summary_row {
+&#10;#poojdxfwzo .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -302,14 +302,14 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   padding-left: 5px;
   padding-right: 5px;
 }
-&#10;#ipfhifqecr .gt_first_summary_row {
+&#10;#poojdxfwzo .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
-&#10;#ipfhifqecr .gt_first_summary_row.thick {
+&#10;#poojdxfwzo .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
-&#10;#ipfhifqecr .gt_last_summary_row {
+&#10;#poojdxfwzo .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -318,7 +318,7 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
-&#10;#ipfhifqecr .gt_grand_summary_row {
+&#10;#poojdxfwzo .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -327,7 +327,7 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   padding-left: 5px;
   padding-right: 5px;
 }
-&#10;#ipfhifqecr .gt_first_grand_summary_row {
+&#10;#poojdxfwzo .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -336,7 +336,7 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   border-top-width: 6px;
   border-top-color: #D3D3D3;
 }
-&#10;#ipfhifqecr .gt_last_grand_summary_row_top {
+&#10;#poojdxfwzo .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -345,10 +345,10 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   border-bottom-width: 6px;
   border-bottom-color: #D3D3D3;
 }
-&#10;#ipfhifqecr .gt_striped {
+&#10;#poojdxfwzo .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
-&#10;#ipfhifqecr .gt_table_body {
+&#10;#poojdxfwzo .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -356,7 +356,7 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
-&#10;#ipfhifqecr .gt_footnotes {
+&#10;#poojdxfwzo .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -369,7 +369,7 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   border-right-width: 2px;
   border-right-color: #D3D3D3;
 }
-&#10;#ipfhifqecr .gt_footnote {
+&#10;#poojdxfwzo .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -377,7 +377,7 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   padding-left: 5px;
   padding-right: 5px;
 }
-&#10;#ipfhifqecr .gt_sourcenotes {
+&#10;#poojdxfwzo .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -390,64 +390,64 @@ head(data)%>% gt(rownames_to_stub = TRUE)
   border-right-width: 2px;
   border-right-color: #D3D3D3;
 }
-&#10;#ipfhifqecr .gt_sourcenote {
+&#10;#poojdxfwzo .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
   padding-left: 5px;
   padding-right: 5px;
 }
-&#10;#ipfhifqecr .gt_left {
+&#10;#poojdxfwzo .gt_left {
   text-align: left;
 }
-&#10;#ipfhifqecr .gt_center {
+&#10;#poojdxfwzo .gt_center {
   text-align: center;
 }
-&#10;#ipfhifqecr .gt_right {
+&#10;#poojdxfwzo .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-&#10;#ipfhifqecr .gt_font_normal {
+&#10;#poojdxfwzo .gt_font_normal {
   font-weight: normal;
 }
-&#10;#ipfhifqecr .gt_font_bold {
+&#10;#poojdxfwzo .gt_font_bold {
   font-weight: bold;
 }
-&#10;#ipfhifqecr .gt_font_italic {
+&#10;#poojdxfwzo .gt_font_italic {
   font-style: italic;
 }
-&#10;#ipfhifqecr .gt_super {
+&#10;#poojdxfwzo .gt_super {
   font-size: 65%;
 }
-&#10;#ipfhifqecr .gt_footnote_marks {
+&#10;#poojdxfwzo .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
-&#10;#ipfhifqecr .gt_asterisk {
+&#10;#poojdxfwzo .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
-&#10;#ipfhifqecr .gt_indent_1 {
+&#10;#poojdxfwzo .gt_indent_1 {
   text-indent: 5px;
 }
-&#10;#ipfhifqecr .gt_indent_2 {
+&#10;#poojdxfwzo .gt_indent_2 {
   text-indent: 10px;
 }
-&#10;#ipfhifqecr .gt_indent_3 {
+&#10;#poojdxfwzo .gt_indent_3 {
   text-indent: 15px;
 }
-&#10;#ipfhifqecr .gt_indent_4 {
+&#10;#poojdxfwzo .gt_indent_4 {
   text-indent: 20px;
 }
-&#10;#ipfhifqecr .gt_indent_5 {
+&#10;#poojdxfwzo .gt_indent_5 {
   text-indent: 25px;
 }
-&#10;#ipfhifqecr .katex-display {
+&#10;#poojdxfwzo .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
-&#10;#ipfhifqecr div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+&#10;#poojdxfwzo div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
@@ -467,6 +467,9 @@ head(data)%>% gt(rownames_to_stub = TRUE)
 
 Lets first evaluate the total read counts per sample to identify
 potential library size biases.
+
+\#\| fig-cap: “Figure 1: Total library sizes grouped by Cell Line,
+Treatment, and Genetic perturbation.”
 
 <details class="code-fold">
 <summary>Code</summary>
@@ -506,9 +509,10 @@ ggplot(lib_size, aes(x = Condition, y = Counts_Millions, fill = Replicate)) +
 
 </details>
 
-![Figure 1: Total library sizes grouped by Cell Line, Treatment, and
-Genetic
-perturbation.](Initial_QC_files/figure-commonmark/unnamed-chunk-3-1.png)
+![](Initial_QC_files/figure-commonmark/unnamed-chunk-3-1.png)
+
+***Figure 1:** Total library sizes grouped by Cell Line, Treatment, and
+Genetic perturbation.*
 
 LNCaP samples show consistent read depths across conditions. Conversly,
 PC3 replicates indicate noticeable variability in depth. These
@@ -539,8 +543,9 @@ ggplot(data_long, aes(x = Condition, y = log2(Counts + 1), fill = Replicate)) +
 
 </details>
 
-![Figure 2: Distribution of Log2-transformed
-counts.](Initial_QC_files/figure-commonmark/unnamed-chunk-4-1.png)
+![](Initial_QC_files/figure-commonmark/unnamed-chunk-4-1.png)
+
+***Figure 2:** Distribution of Log2-transformed counts.*
 
 Global expression profiles are relatively consistent across samples,
 with median log2 counts ranging between 7.5 and 8.0. However, we can
@@ -590,8 +595,10 @@ ggplot(corr_data, aes(x = log2(Rep_1 + 1), y = log2(Rep_2 + 1))) +
 
 </details>
 
-![Figure-3:Pearson correlation of log2-transformed counts for replicates
-per group](Initial_QC_files/figure-commonmark/unnamed-chunk-5-1.png)
+![](Initial_QC_files/figure-commonmark/unnamed-chunk-5-1.png)
+
+***Figure-3:** Pearson correlation of log2-transformed counts for
+replicates per group*
 
 Replicates demonstrate high correlation (R \>= 0.95), indicating robust
 reproducibility across all experimental conditions.
@@ -641,8 +648,9 @@ ggplot(top_genes_plot_data, aes(y = Gene_Sorted, x = Counts, fill = Gene)) +
 
 </details>
 
-![Figure-4:Genes with highest
-count](Initial_QC_files/figure-commonmark/unnamed-chunk-6-1.png)
+![](Initial_QC_files/figure-commonmark/unnamed-chunk-6-1.png)
+
+***Figure-4:** Genes with highest count*
 
 The most abundant transcripts are consistent across samples.
 Mitochondrial and *RNA45SN* genes dominate across samples. Crucially,
@@ -683,13 +691,17 @@ ggplot(qc_summary, aes(x = Sample, y = Percentage, fill = Type)) +
   scale_fill_manual(values = c("Nuclear/Other" = "#117A65", "Mitochondrial" = "#C0392B", "Ribosomal" = "#F39C12")) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 60, hjust = 1), legend.position = "right") +
-  labs(title = "Library Composition by Gene Category", y = "Percentage of Total Reads", x = NULL)
+  labs( y = "Percentage of Total Reads", x = NULL)
 ```
 
 </details>
 
-![Figure-5:](Initial_QC_files/figure-commonmark/unnamed-chunk-7-1.png)
+![](Initial_QC_files/figure-commonmark/unnamed-chunk-7-1.png)
+
+***Figure-5:*** Library Composition by Gene Category. All genes are
+classified into three broad categories- Mitochondrial, Ribosomal and
+Nuclear/other.
 
 PC3 samples have a significantly higher mitochondrial burden (~45%)
 compared to LNCaP. This could be result of a different metabolic profile
-or technical artifacts between the two cell lines.
+or due to technical reasons such as higher cell death.

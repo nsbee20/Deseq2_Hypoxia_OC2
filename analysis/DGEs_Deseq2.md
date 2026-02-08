@@ -450,13 +450,13 @@ pc3_kegg<-plot_kegg_pathways(genes_pc3, "PC3: Hypoxia Regulated Pathways", p_cut
 # For LNCaP
 lncap_kegg<-plot_kegg_pathways(genes_lncap, "LNCaP: Hypoxia Regulated Pathways", p_cutoff = 0.05, max_pathways = 10)
 
-pc3_kegg+lncap_kegg
+lncap_kegg+pc3_kegg
 ```
 
 </details>
 
 ![](DGEs_Deseq2_files/figure-commonmark/unnamed-chunk-12-1.png)
 
-We observe Glycolysis and HIF-1 signaling pathways are some of the
-pathways thar regulated under hypoxia conditions. This provides
-additional confirmation that the analysis is correct.
+We can observe Glycolysis and HIF-1 signaling pathways pop up which are
+some of the well known pathways regulated under under hypoxia
+conditions. This provides additional validation for the analysis.

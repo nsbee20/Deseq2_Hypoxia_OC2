@@ -8,6 +8,12 @@ format:
     toc-depth: 2
     code-fold: true
     theme: cosmo
+    fig-format: png
+    fig-dpi: 300
+knitr:
+  opts_chunk:
+    dev: "png"
+    dev.args: { bg: "white" } # This forces the background to be white
 ---
 
 In this analysis, we walk through a differential gene expression workflow using DESeq2 to study transcriptional changes under hypoxic conditions and to evaluate the effects of OC2 overexpression in LNCaP cells and OC2 knockdown in PC3 cells. The goal is not only to identify differentially expressed genes, but also to demonstrate how to evaluate data quality, interpret model behavior, and assess biological plausibility at each step.
@@ -125,6 +131,7 @@ PC3 samples exhibit a different structure. PCA shows a strong separation between
 #| fig-width: 8
 #| fig-height: 5
 #| fig-dpi: 300
+#| 
 #heatmap for pc3 cells
 pc3_QC$heatmap
 ```
@@ -242,7 +249,7 @@ We can see some a good number of genes that are differential expressed. For PC3 
 
 ```{r}
 #| message: false
-#| fig-width: 15
+#| fig-width: 17.5
 #| fig-height: 5
 #| fig-dpi: 300
 # extract 
@@ -264,7 +271,7 @@ pc3_kegg<-plot_kegg_pathways(genes_pc3, "PC3: Hypoxia Regulated Pathways", p_cut
 # For LNCaP
 lncap_kegg<-plot_kegg_pathways(genes_lncap, "LNCaP: Hypoxia Regulated Pathways", p_cutoff = 0.05, max_pathways = 10)
 
-pc3_kegg+lncap_kegg
+lncap_kegg+pc3_kegg
 ```
 
 We can observe Glycolysis and HIF-1 signaling pathways pop up which are some of the well known pathways regulated under under hypoxia conditions. This provides additional validation for the analysis.
