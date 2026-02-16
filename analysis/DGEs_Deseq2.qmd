@@ -17,6 +17,7 @@ In this analysis, we walk through a differential gene expression workflow using 
 ```{r}
 #| results: false
 #| message: false
+#| warning: false
 # Load necessary library
 library(tidyverse)
 library(here)
@@ -33,10 +34,15 @@ library(patchwork)
 library(ggplotify)
 library(patchwork)
 library(org.Hs.eg.db)
+library(gridExtra)
+library(grid)
+library(circlize)
+library(ComplexHeatmap)
 # Resolve namespace conflicts
 conflict_prefer("select", "dplyr")
 conflict_prefer("filter", "dplyr")
 conflicts_prefer(generics::setdiff)
+conflicts_prefer(pheatmap::pheatmap)
 
 #loading functions
 source(here("scripts","functions.R"))
@@ -94,6 +100,7 @@ stopifnot(all(colnames(data_pc3) == rownames(meta_pc3)))
 Before performing differential expression analysis, it is essential to assess whether technical artifacts or outlier samples are present. While replicate correlations at the count level provide a useful first check, high-dimensional methods such as principal component analysis (PCA) and hierarchical clustering offer deeper insight into global sample relationships.
 
 ```{r}
+#| warning: false
 #| fig-width: 6
 #| fig-height: 4
 #| fig-dpi: 300
@@ -112,6 +119,7 @@ lncap_QC<-QC_pca_heatmap(dds_lncap, meta_lncap,cell_line_name = "LNCaP")
 ```
 
 ```{r}
+#| warning: false
 #| fig-width: 10
 #| fig-height: 3
 #| fig-dpi: 300
@@ -119,7 +127,7 @@ lncap_QC<-QC_pca_heatmap(dds_lncap, meta_lncap,cell_line_name = "LNCaP")
 lncap_QC$pca+ pc3_QC$pca 
 ```
 
-***Figure 1:** Principal component analysis for LNCaP and PC3 samples. Genetic perturbation is dsiplayed by color and Treatment condition is displayed by different symbols.*
+***Figure 1:** Principal component analysis for LNCaP and PC3 samples. Genetic perturbation is displayed by color and Treatment condition is displayed by different symbols.*
 
 For LNCaP samples, PCA reveals four well-separated clusters corresponding to the combination of treatment condition and genetic perturbation. The first principal component (PC1), which explains approximately 56% of the total variance, primarily captures treatment effects. The second principal component (PC2), explaining approximately 37% of the variance, reflects the impact of OC2 overexpression. The absence of isolated samples or unexpected clustering patterns suggests that these data are free of major technical artifacts and suitable for downstream modeling.
 
@@ -129,7 +137,8 @@ PC3 samples exhibit a different structure. PCA shows a strong separation between
 #| fig-width: 8
 #| fig-height: 5
 #| fig-dpi: 300
-#| 
+#| warning: false
+
 #heatmap for pc3 cells
 pc3_QC$heatmap
 ```
@@ -139,6 +148,7 @@ pc3_QC$heatmap
 Based on the heatmap, we see another latent variable- the siRNA used. We can see the siRNA specific samples cluster more strongly together regardless of the treatment. If treatment effects dominate global expression variance, we would expect the siRNA1 and siRNA2 to cluster together based on the treatment. However, we see a stronger correlation between the same siRNA's used for knockdown of OC2 regardless of the treatment. This could perhaps be a result of knockdown of OC2 which rescues some aspects of hypoxia driven cellular changes (not fully). However, we also see the siRNA's under normoxia cluster separately so there could be some off target activity of the specific siRNA used to knockdown OC2.
 
 ```{r}
+#| warning: false
 #| fig-width: 8
 #| fig-height: 5
 #| fig-dpi: 300
@@ -155,7 +165,7 @@ For LNCaP cells, the replicates cluster together based on the treatment and gene
 With data quality assessed, we proceed to differential expression analysis using DESeq2. Reference levels are set such that normoxia and control genetic perturbations (empty vector or siCtrl) serve as baseline conditions. Calling the `DESeq()` function initiates a sequence of modeling steps, which are outlined below to clarify how DESeq2 arrives at its final statistical tests.
 
 ```{r}
-#
+#| warning: false
 #releveling to set reference for treatment and perturbation
 dds_pc3$Treatment <- relevel(dds_pc3$Treatment, ref = "Normoxia")
 dds_pc3$Genetic_perturbation <- relevel(dds_pc3$Genetic_perturbation, ref = "siCtrl")
@@ -182,6 +192,7 @@ You can see various steps that are performed by this function. Briefly, the DESe
 Now, lets examine the mean-dispersion plot to check how well our assumptions hold and
 
 ```{r}
+#| warning: false
 #| fig-width: 12
 #| fig-height: 5
 #| fig-dpi: 300
@@ -214,9 +225,10 @@ res_lncap_hypoxia <- results(dds_lncap,
 
 ```
 
-Before focusing on individual differentially expressed genes (DEGs), lets also xamine the relationship between normalized counts and estimated fold changes to ensure that model estimates behave sensibly across the expression range.
+Prior to examining individual differentially expressed genes (DEGs), lets examine the relationship between normalized counts and estimated fold changes to ensure that model estimates behave sensibly across the expression range.
 
 ```{r}
+#| warning: false
 #| fig-width: 10
 #| fig-height: 5
 #| fig-dpi: 300
@@ -231,14 +243,15 @@ plotMA(res_pc3_hypoxia, ylim = c(-4, 4), alpha = 0.05,main = "PC3: Hypoxia vs No
 par(mfrow = c(1, 1))
 ```
 
-***Figure 5:** MA plot for both cell lines. Each dot represents a gene and differential expressed genes between normoxia and hypoxia conditions for empty vector and siCtrl for LNCaP and PC3 Cells, respectively with padj\<0.05 are shown in blue.*
+**Figure 5: MA plots illustrating global transcriptional changes in response to hypoxia.** Each data point represents an individual gene. Differentially expressed genes (DEGs) between normoxia and hypoxia—identified in control samples (Empty Vector for LNCaP and siCtrl for PC3)—are highlighted in blue based on a significance threshold of *padj* \< 0.05.
 
 Overall, we identify a larger number of DEGs in LNCaP cells compared to PC3 cells. This difference may reflect biological differences between the cell lines, differences in variability across samples, or latent technical factors.
 
-## 4. Deferentially expressed genes under hypoxia condition
+## 4. Differentially expressed genes under hypoxia condition
 
 ```{r}
 #| message: false
+#| warning: false
 #| fig-width: 20
 #| fig-height: 8
 #| fig-dpi: 300
@@ -253,10 +266,11 @@ v_lncap <- plot_volcano(res_lncap_hypoxia, "LNCaP: Hypoxia vs Normoxia (Empty ve
 
 ***Figure 6:** Volcano plot displaying DEGs between normoxia and hypoxia conditions for empty vector and siCtrl for LNCaP and PC3 Cells, respectively. Fold change of 2 and with padj of 0.05 were used as thresholds.*
 
-We can see some a good number of genes that are differential expressed. For PC3 samples, we can see some well known genes regulated under hypoxic conditions such as ANGPTL4 and NDRG1. Lets do a sanity check for the differential expressed genes are consistent with the known biology. Lets perform pathway enrichment on these DEGs to understand the pathways regulated. For additional confirmation at a global scale of all the DEGs, lets perform pathway enrichment analysis to identify if the known pathways are identified.
+We can see a good number of genes that are differentially expressed. For PC3 samples, we can see some well known genes regulated under hypoxic conditions such as ANGPTL4 and NDRG1. Lets perform pathway enrichment for these DEGs to understand the pathways regulated and to confirm that known biology is recoverd.
 
 ```{r}
 #| message: false
+#| warning: false
 #| fig-width: 17.5
 #| fig-height: 5
 #| fig-dpi: 300
@@ -286,14 +300,15 @@ lncap_kegg+pc3_kegg
 
 We can observe Glycolysis and HIF-1 signaling pathways pop up which are some of the well known pathways regulated under under hypoxia conditions. This provides additional validation for the analysis.
 
-## 5. Role of OC2 gene under hypoxia conditions
+## 5. Role of ONECUT2 under hypoxia conditions
 
 To understand the role of OC2 gene and the mechanism of action under hypoxia conditions, lets first analyze PC3 samples where OC2 is knocked down. Lets first sanity check if we observe a decrease in PC3 transcripts
 
 ```{r}
 #| message: false
+#| warning: false
 #| fig-width: 4
-#| fig-height: 2.
+#| fig-height: 2
 #| fig-dpi: 300
 # 1. Extract normalized counts for a specific gene (e.g., AAMP)
 gene_name <- "ONECUT2"
@@ -312,7 +327,7 @@ ggplot(plot_data, aes(x = Genetic_perturbation, y = count, fill = Genetic_pertur
   theme_minimal() +
   labs(
     x = "Genetic Perturbation",
-    y = "Normalized Count",
+    y = "Normalized OC2 Counts",
     fill = "Group"
   ) +
   theme(
@@ -324,7 +339,7 @@ ggplot(plot_data, aes(x = Genetic_perturbation, y = count, fill = Genetic_pertur
   )
 ```
 
-***Figure 8:** ONECUT2 (OC2) expression in PC3 samples. Normalized count shown on x-axis. Rep1/ rep2 for siCtrl and two guides for siOC2 as shown as for siOC2 samples.*
+***Figure 8:*** Confirmation of reduction in *ONECUT2* transcripts following siRNA knockdown across both conditions. *Normalized count shown on y-axis. Rep1/ rep2 for siCtrl and two independent guides for siOC2 as shown as individual datapoints.*
 
 We can notice a strong reduction (5X) in siOC2 transcripts compared to siCtrl in both treatment groups. Lets analyze the genes and pathways modulated by siOC2 knockdown.
 
@@ -340,6 +355,7 @@ res_OC2_Hypoxia <- results(dds_pc3,
 ```
 
 ```{r}
+#| warning: false
 #| fig-width: 10
 #| fig-height: 5
 #| fig-dpi: 300
@@ -354,12 +370,13 @@ plotMA(res_OC2_Hypoxia, ylim = c(-4, 4), alpha = 0.05,main = "Hypoxia: siCtrl vs
 par(mfrow = c(1, 1))
 ```
 
-***Figure 9:***
+***Figure 9:** MA plots for genes regulated by siOC2 knockdown under normoxia and hypoxia conditions.*
 
-Lets plot volcano plots
+Lets visualize the DEGs using volcano plots
 
 ```{r}
 #| message: false
+#| warning: false
 #| fig-width: 15
 #| fig-height: 8
 #| fig-dpi: 300
@@ -372,14 +389,15 @@ hypox_sioc2 <- plot_volcano(res_OC2_Hypoxia, "PC3-Hypoxia: siCtrl vs siOC2")
 norm_sioc2+hypox_sioc2
 ```
 
-***Figure 10:** Volcano plots displaying DEGs betwen siCtrl and siOC2 under both treatments.*
+***Figure 10:** Volcano plots displaying DEGs between siCtrl and siOC2 under normoxia and hypoxia treatments for PC3 samples.*
 
-We can see some genes that change in the same direction. For example, CLDN1 is unregulated while NOX5 is down regulated. Lets do a sanity to check to confirm the results we are seeing are consistent with normalized counts.
+We can observe some conistent genes that change in the same direction. For example, CLDN1 is upregulated while NOX5 is down regulated under both treatment conditions. Lets also perform a sanity check to confirm the results we are seeing are consistent with normalized counts.
 
 ```{r}
 #| message: false
-#| fig-width: 5
-#| fig-height: 5
+#| warning: false
+#| fig-width: 12
+#| fig-height: 6
 #| fig-dpi: 300
 
 # --- 1. PREPARE DATA ---
@@ -387,37 +405,115 @@ norm_counts <- counts(dds_pc3, normalized = TRUE)
 norm_samples <- rownames(colData(dds_pc3)[colData(dds_pc3)$Treatment == "Normoxia", ])
 hypo_samples <- rownames(colData(dds_pc3)[colData(dds_pc3)$Treatment == "Hypoxia", ])
 
-# --- 2. DEFINE SIGNIFICANT GENES PER CONDITION ---
 sig_genes_norm <- rownames(subset(res_OC2_normoxia, padj < 0.05 & abs(log2FoldChange) > 1))
 sig_genes_hypo <- rownames(subset(res_OC2_Hypoxia, padj < 0.05 & abs(log2FoldChange) > 1))
 
-# --- 3. GENERATE NORMOXIA HEATMAP ---
-mat_norm <- norm_counts[sig_genes_norm, norm_samples]
-mat_norm_scaled <- t(scale(t(mat_norm)))
+# --- 2. GENERATE HEATMAPS AS OBJECTS ---
+#normoxia heatmap
+p1 <- pheatmap::pheatmap(t(scale(t(norm_counts[sig_genes_norm, norm_samples]))), 
+                         cluster_cols = TRUE, cluster_rows = TRUE, 
+                         show_rownames = FALSE, angle_col = 45, fontsize_col = 10,
+                         main = paste("Normoxia:", length(sig_genes_norm), "DEGs"),
+                         color = colorRampPalette(c("royalblue4", "white", "firebrick3"))(100),
+                         border_color = NA, silent = TRUE)$gtable
 
-pheatmap::pheatmap(mat_norm_scaled, 
-         cluster_cols = TRUE,   
-         cluster_rows = TRUE,   
-         show_rownames = FALSE, 
-         show_colnames = TRUE,
-         angle_col = 45,         
-         fontsize_col = 10,      # Increases column label size
-         main = paste("PC3 Normoxia:", length(sig_genes_norm), "Significant DEGs"),
-         color = colorRampPalette(c("royalblue4", "white", "firebrick3"))(100),
-         border_color = NA)
+#hypoxia heatmap
+p2 <- pheatmap::pheatmap(t(scale(t(norm_counts[sig_genes_hypo, hypo_samples]))), 
+                         cluster_cols = TRUE, cluster_rows = TRUE, 
+                         show_rownames = FALSE, angle_col = 45, fontsize_col = 10,
+                         main = paste("Hypoxia:", length(sig_genes_hypo), "DEGs"),
+                         color = colorRampPalette(c("royalblue4", "white", "firebrick3"))(100),
+                         border_color = NA, silent = TRUE)$gtable
 
-# --- 4. GENERATE HYPOXIA HEATMAP ---
-mat_hypo <- norm_counts[sig_genes_hypo, hypo_samples]
-mat_hypo_scaled <- t(scale(t(mat_hypo)))
-
-pheatmap::pheatmap(mat_hypo_scaled, 
-         cluster_cols = TRUE, 
-         cluster_rows = TRUE, 
-         show_rownames = FALSE, 
-         show_colnames = TRUE,
-         angle_col = 45,         
-         fontsize_col = 10,      # Increases column label size
-         main = paste("PC3 Hypoxia:", length(sig_genes_hypo), "Significant DEGs"),
-         color = colorRampPalette(c("royalblue4", "white", "firebrick3"))(100),
-         border_color = NA)
+# --- 3. ARRANGE BOTH---
+grid.arrange(p1, p2, ncol = 2)
 ```
+
+Figure 11: **Heatmap of normalized counts for differentially expressed genes (DEGs) following siOC2 knockdown for PC3 samples.**
+
+The heatmaps generated from normalized counts align with the expected expression patterns, thereby confirming the reliability of the identified DEGs and demonstrating that the results are not due to technical artifacts.
+
+### The Rescue Signature
+
+Lets look at the overlap between hypoxia specific genes and genes regulated by siOC2 knockdown. Particularly, interested in the genes "rescued" in the opposite directions.
+
+```{r}
+#| message: false
+#| warning: false
+#| fig-width: 12
+#| fig-height: 8 
+#| fig-dpi: 300
+
+# --- 1. IDENTIFY ALL RESCUED GENES IN OPPOSITE DIRECTIONS---
+hypo_up <- rownames(subset(res_pc3_hypoxia, padj < 0.05 & log2FoldChange > 1))
+oc2_down <- rownames(subset(res_OC2_Hypoxia, padj < 0.05 & log2FoldChange < -1))
+rescued_up_down <- base::intersect(hypo_up, oc2_down)
+
+hypo_down <- rownames(subset(res_pc3_hypoxia, padj < 0.05 & log2FoldChange < -1))
+oc2_up <- rownames(subset(res_OC2_Hypoxia, padj < 0.05 & log2FoldChange > 1))
+rescued_down_up <- base::intersect(hypo_down, oc2_up)
+
+all_rescued <- c(rescued_up_down, rescued_down_up)
+
+# --- 2. PREPARE & CLEAN DATA ---
+norm_counts <- counts(dds_pc3, normalized = TRUE)
+sample_order <- c(
+  rownames(colData(dds_pc3)[colData(dds_pc3)$Treatment == "Normoxia" & colData(dds_pc3)$Genetic_perturbation == "siCtrl", ]),
+  rownames(colData(dds_pc3)[colData(dds_pc3)$Treatment == "Normoxia" & colData(dds_pc3)$Genetic_perturbation == "siOC2", ]),
+  rownames(colData(dds_pc3)[colData(dds_pc3)$Treatment == "Hypoxia" & colData(dds_pc3)$Genetic_perturbation == "siCtrl", ]),
+  rownames(colData(dds_pc3)[colData(dds_pc3)$Treatment == "Hypoxia" & colData(dds_pc3)$Genetic_perturbation == "siOC2", ])
+)
+
+mat_rescued <- norm_counts[all_rescued, sample_order]
+# Remove zero-variance rows to prevent scaling errors
+#mat_rescued <- mat_rescued[apply(mat_rescued, 1, var) > 0, ]
+mat_scaled <- t(scale(t(mat_rescued)))
+
+# Clip for contrast
+mat_scaled[mat_scaled > 2] <- 2
+mat_scaled[mat_scaled < -2] <- -2
+
+# Recalculate splits for surviving genes
+final_genes <- rownames(mat_scaled)
+split_factor <- ifelse(final_genes %in% rescued_up_down, "Inhibited Induction", "Reversed Suppression")
+
+# --- 3. PLOT ---
+col_fun = colorRamp2(c(-2, 0, 2), c("#2166AC", "#FFFFFF", "#B2182B"))
+
+ann <- data.frame(
+  Treatment = colData(dds_pc3)[sample_order, "Treatment"],
+  Knockdown = colData(dds_pc3)[sample_order, "Genetic_perturbation"]
+)
+col_ann <- list(
+  Treatment = c("Normoxia" = "#99CCFF", "Hypoxia" = "#003366"),
+  Knockdown = c("siCtrl" = "grey80", "siOC2" = "purple")
+)
+
+Heatmap(mat_scaled, 
+        name = "Z-score",
+        column_title = paste("Rescue Gene Signature:", nrow(mat_scaled), "Genes"),
+        col = col_fun,
+        row_split = split_factor,
+        show_row_names = TRUE, 
+        row_names_side = "right",
+        row_names_gp = gpar(fontsize = 8, fontface = "italic"), 
+        show_row_dend = FALSE,
+        
+        cluster_columns = FALSE, 
+        column_names_rot = -60,
+        top_annotation = HeatmapAnnotation(df = ann, col = col_ann),
+        border = TRUE,
+        rect_gp = gpar(col = "white", lwd = 0.1))
+```
+
+**Figure 12: Identification of the OC2-mediated "Rescue Signature" under hypoxic conditions.** Genes regulated by hypoxia were first identified by comparing siCtrl Normoxia and siCtrl Hypoxia samples. Rescued genes were defined as those exhibiting a minimum 2-fold change in opposite directions between the hypoxia response and the siOC2 knockdown, with a significance threshold of *padj* \< 0.05.
+
+## 6. Summary and Conclusions
+
+In this analysis, we conducted a differential gene expression analysis using the **DESeq2** package for PC3 and LNCaP cell lines under hypoxic conditions.
+
+We implemented several quality control (QC) measures to evaluate data integrity and identify potential technical artifacts.
+
+We performed differential gene analysis using Deseq2 packaged and identified differentially expressed genes (DEGs) for PC3 and LNCaP cells under hypoxia conditions. We validated these findings through pathway enrichment to confirm the biological accuracy of our results.
+
+Furthermore, we characterized the transcriptional role of ONECUT2 (OC2) in PC3 cells by analyzing the effects of siRNA-mediated knockdown. This allowed us to pinpoint a specific 'Rescue Signature'—genes modulated by OC2 knockdown specifically under hypoxic conditions.

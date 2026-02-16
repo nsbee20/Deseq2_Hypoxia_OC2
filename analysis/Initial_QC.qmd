@@ -16,6 +16,7 @@ Summary: This report details the initial Quality Control (QC) and exploratory an
 ```{r}
 #| results: false
 #| message: false
+#| warning: false
 # Load necessary library
 library(tidyverse)
 library(here)
@@ -48,9 +49,8 @@ knitr::kable(head(data))
 
 Lets first evaluate the total read counts per sample to identify potential library size biases.
 
-#\| fig-cap: "Figure 1: Total library sizes grouped by Cell Line, Treatment, and Genetic perturbation."
-
 ```{r}
+#| warning: false
 #| fig-width: 10
 #| fig-height: 5
 #| fig-dpi: 300
@@ -92,6 +92,8 @@ ggplot(lib_size, aes(x = Condition, y = Counts_Millions, fill = Replicate)) +
 LNCaP samples show consistent read depths across conditions. Conversly, PC3 replicates indicate noticeable variability in depth. These differences in sequencing can be addressed using size-factor normalization or other normalization methods during differential expression analysis.
 
 ```{r}
+#| message: false
+#| warning: false
 #| fig-width: 10
 #| fig-height: 5
 #| fig-dpi: 300
@@ -118,6 +120,8 @@ ggplot(data_long, aes(x = Condition, y = log2(Counts + 1), fill = Replicate)) +
 Global expression profiles are relatively consistent across samples, with median log2 counts ranging between 7.5 and 8.0. However, we can notice some extreme high-count outliers (\>20 on the log2 scale).
 
 ```{r}
+#| message: false
+#| warning: false
 #| fig-width: 14
 #| fig-height: 10
 #| fig-dpi: 300
@@ -169,6 +173,8 @@ Replicates demonstrate high correlation (R \>= 0.95), indicating robust reproduc
 Lets investigate the highly abundant transcripts identified in Figure 2 to determine if they represent biologically relevant signals or technical artifacts.
 
 ```{r}
+#| message: false
+#| warning: false
 #| fig-width: 14
 #| fig-height: 10
 #| fig-dpi: 300
@@ -181,7 +187,6 @@ top_genes_plot_data <- data %>%
   slice_max(order_by = Counts, n = 3, with_ties = FALSE) %>% 
   ungroup() %>%
   mutate(Gene_Sorted = tidytext::reorder_within(Gene, Counts, Sample))
-
 
 # My preferred colors but you can define your own
 pref_colors <- c(
@@ -202,17 +207,18 @@ ggplot(top_genes_plot_data, aes(y = Gene_Sorted, x = Counts, fill = Gene)) +
   theme(axis.text.y = element_blank(),
         strip.text = element_text(face = "bold", size = 11),
         strip.background = element_rect(fill = "#F4F6F7", color = NA)) +
-  labs(title = "Top 3 Most Highly Expressed Genes per sample",
-       x = "Raw Read Counts (Log10)", y = NULL)
+  labs(x = "Raw Read Counts (Log10)", y = NULL)
 ```
 
-***Figure-4:** Genes with highest count*
+***Figure-4:*** Top 3 Highly Expressed Genes per sample
 
 The most abundant transcripts are consistent across samples. Mitochondrial and *RNA45SN* genes dominate across samples. Crucially, *ONECUT2* appears as a top gene in OC2 overexpression samples, validating the experimental setup.
 
 Given the prevalence of mitochondrial transcripts, lets quantify the exact proportion of the library they occupy per sample. Additionally, we can inspect the ribosomal content to confirm the efficiency of the Poly-A selection.
 
 ```{r}
+#| message: false
+#| warning: false
 #| fig-width: 10
 #| fig-height: 5
 #| fig-dpi: 300

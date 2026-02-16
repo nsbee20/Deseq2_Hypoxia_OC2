@@ -1,6 +1,6 @@
 # Quality Control and Library Composition Analysis
 Nitin Beesabathuni
-2026-02-08
+2026-02-16
 
 - [1. Data Import and Preparation](#1-data-import-and-preparation)
 - [2. Sequencing Depth & Replicate
@@ -63,15 +63,6 @@ knitr::kable(head(data))
 | NAT2 | 31 | 34 | 10 | 25 | 29 | 33 | 31 | 22 | 0 | 1 | 7 | 8 | 2 | 0 | 1 | 10 |
 | SERPINA3 | 158 | 217 | 60 | 110 | 75 | 55 | 101 | 72 | 5 | 16 | 9 | 6 | 5 | 4 | 0 | 3 |
 | AAMP | 2211 | 3305 | 1709 | 2072 | 2324 | 2641 | 1980 | 1366 | 485 | 1144 | 1577 | 1132 | 911 | 281 | 330 | 992 |
-
-<details class="code-fold">
-<summary>Code</summary>
-
-``` r
-#head(data)%>% gt(rownames_to_stub = TRUE)
-```
-
-</details>
 
 ## 2. Sequencing Depth & Replicate Consistency
 
@@ -232,7 +223,6 @@ top_genes_plot_data <- data %>%
   ungroup() %>%
   mutate(Gene_Sorted = tidytext::reorder_within(Gene, Counts, Sample))
 
-
 # My preferred colors but you can define your own
 pref_colors <- c(
   "#2C3E50", "#16A085", "#2980B9", "#8E44AD", "#117A65",
@@ -252,15 +242,14 @@ ggplot(top_genes_plot_data, aes(y = Gene_Sorted, x = Counts, fill = Gene)) +
   theme(axis.text.y = element_blank(),
         strip.text = element_text(face = "bold", size = 11),
         strip.background = element_rect(fill = "#F4F6F7", color = NA)) +
-  labs(title = "Top 3 Most Highly Expressed Genes per sample",
-       x = "Raw Read Counts (Log10)", y = NULL)
+  labs(x = "Raw Read Counts (Log10)", y = NULL)
 ```
 
 </details>
 
 ![](Initial_QC_files/figure-commonmark/unnamed-chunk-6-1.png)
 
-***Figure-4:** Genes with highest count*
+***Figure-4:*** Top 3 Most Highly Expressed Genes per sample
 
 The most abundant transcripts are consistent across samples.
 Mitochondrial and *RNA45SN* genes dominate across samples. Crucially,
