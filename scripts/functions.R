@@ -67,44 +67,94 @@ QC_pca_heatmap <- function(dds,metadata,cell_line_name) {
 }
 
 
-# Function to generate consistent volcano plots
-plot_volcano <- function(res, title_str,...) {
-  # Convert to data frame to handle logical indexing
+# # Function to generate consistent volcano plots
+# plot_volcano <- function(res, title_str,...) {
+#   # Convert to data frame to handle logical indexing
+#   df <- as.data.frame(res)
+#   top_labels <- head(rownames(res[order(res$padj), ]), 30)
+#   
+#   # Create a custom color vector
+#   keyvals <- ifelse(
+#     df$padj < 0.05 & df$log2FoldChange > 1.0, 'red3',
+#     ifelse(df$padj < 0.05 & df$log2FoldChange < -1.0, 'royalblue',
+#            'grey'))
+#   
+#   #Convert any remaining NAs to 'grey'
+#   keyvals[is.na(keyvals)] <- 'grey'
+#   
+#   # Ensure the vector has names for the legend
+#   names(keyvals)[keyvals == 'red3'] <- 'Upregulated'
+#   names(keyvals)[keyvals == 'grey'] <- 'NS / Low Fold'
+#   names(keyvals)[keyvals == 'royalblue'] <- 'Downregulated'
+#   
+#   EnhancedVolcano(res,
+#                   lab = rownames(res),
+#                   selectLab = top_labels,
+#                   x = 'log2FoldChange',
+#                   y = 'padj', 
+#                   title = title_str,
+#                   subtitle = NULL,      # Removes the "EnhancedVolcano" subtitle
+#                   caption = NULL,       # Removes the "total variables" footer
+#                   ylab = bquote(~-Log[10] ~ italic(padj)), 
+#                   pCutoff = 0.05,
+#                   FCcutoff = 1.0, 
+#                   colCustom = keyvals, # Use the custom color vector
+#                   labSize = 5,
+#                   colAlpha = 0.6,
+#                   drawConnectors = TRUE,
+#                   widthConnectors = 0.5,
+#                   max.overlaps = 20,          # Limits label clutter
+#                   lengthConnectors = unit(0.01, "npc"), # Length of the lines
+#                   ...
+#   )
+# }
+
+plot_volcano <- function(res, title_str, p_clip = 1e-40, ...) {
+  # 1. Convert to data frame
   df <- as.data.frame(res)
-  top_labels <- head(rownames(res[order(res$padj), ]), 30)
   
-  # Create a custom color vector
+  # 2. Clipping Logic: 
+  # Apply the user-defined p_clip value
+  # Any padj smaller than p_clip will be set to p_clip
+  df$padj <- ifelse(!is.na(df$padj) & df$padj < p_clip, p_clip, df$padj)
+  
+  # Recalculate -log10 for the y-axis limit
+  y_limit <- -log10(p_clip)
+  
+  # Identify top labels based on clipped values
+  top_labels <- head(rownames(df[order(df$padj), ]), 30)
+  
+  # 3. Create custom color vector
   keyvals <- ifelse(
     df$padj < 0.05 & df$log2FoldChange > 1.0, 'red3',
     ifelse(df$padj < 0.05 & df$log2FoldChange < -1.0, 'royalblue',
            'grey'))
   
-  #Convert any remaining NAs to 'grey'
   keyvals[is.na(keyvals)] <- 'grey'
-  
-  # Ensure the vector has names for the legend
   names(keyvals)[keyvals == 'red3'] <- 'Upregulated'
   names(keyvals)[keyvals == 'grey'] <- 'NS / Low Fold'
   names(keyvals)[keyvals == 'royalblue'] <- 'Downregulated'
   
-  EnhancedVolcano(res,
-                  lab = rownames(res),
+  # 4. Generate Plot
+  EnhancedVolcano(df,
+                  lab = rownames(df),
                   selectLab = top_labels,
                   x = 'log2FoldChange',
                   y = 'padj', 
                   title = title_str,
-                  subtitle = NULL,      # Removes the "EnhancedVolcano" subtitle
-                  caption = NULL,       # Removes the "total variables" footer
+                  subtitle = paste("Y-axis clipped at -Log10 =", y_limit),
+                  caption = NULL, 
                   ylab = bquote(~-Log[10] ~ italic(padj)), 
                   pCutoff = 0.05,
                   FCcutoff = 1.0, 
-                  colCustom = keyvals, # Use the custom color vector
+                  colCustom = keyvals,
+                  ylim = c(0, y_limit), # Dynamically set limit based on input
                   labSize = 5,
                   colAlpha = 0.6,
                   drawConnectors = TRUE,
                   widthConnectors = 0.5,
-                  max.overlaps = 20,          # Limits label clutter
-                  lengthConnectors = unit(0.01, "npc"), # Length of the lines
+                  max.overlaps = 20,
+                  lengthConnectors = unit(0.01, "npc"),
                   ...
   )
 }

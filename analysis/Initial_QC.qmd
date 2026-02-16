@@ -41,8 +41,7 @@ Importing the annotated count matrix. Gene symbols are used as primary identifie
 data <- read.csv(here("data","analysis_ready_count_data.csv"), row.names = 1, check.names = FALSE)
 
 # Display data structure
-head(data)%>% gt(rownames_to_stub = TRUE)
-
+knitr::kable(head(data))
 ```
 
 ## 2. Sequencing Depth & Replicate Consistency
