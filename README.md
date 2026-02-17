@@ -28,7 +28,7 @@ Before differential expression, we evaluated the raw data for technical artifact
 
 4. OC2 Rescue Signature under hypoxix conditions: Using this analysis we identified 54 genes that are regulated in the opposite direction by OC2 Knockdown under hypoxic conditions. 
 
-Step 2-4 analysis is available in DGEs_Deseq2 qmd and md files. 
+Step 2-4 analysis are available in DGEs_Deseq2 qmd and md files. 
 
 ## **Repository Structure**
 /data: Contains analysis-ready count matrices and metadata.
