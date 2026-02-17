@@ -1,4 +1,4 @@
-# **Impact of ONECUT2 (OC2) on the Hypoxic Transcriptome in Prostate Cancer**
+# **Transcriptional Characterization of the ONECUT2-Mediated Hypoxia Response in Prostate Cancer using Deseq2**
 
 ## **Project Overview**
 This project investigates the transcriptional response of prostate cancer cell lines (LNCaP and PC3) to hypoxic conditions (low oxygen) and explores the regulatory role of the transcription factor ONECUT2 (OC2). Using a DESeq2-based workflow, we characterize how OC2 knockdown modulates the expression of hypoxia-induced genes, ultimately identifying a "Rescue Signature" where OC2 inhibition reverses hypoxic signaling.
