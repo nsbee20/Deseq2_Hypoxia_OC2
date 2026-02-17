@@ -1,19 +1,17 @@
-**Impact of ONECUT2 (OC2) on the Hypoxic Transcriptome in Prostate Cancer**
+# **Impact of ONECUT2 (OC2) on the Hypoxic Transcriptome in Prostate Cancer**
 
-**Project Overview**
+## **Project Overview**
 This project investigates the transcriptional response of prostate cancer cell lines (LNCaP and PC3) to hypoxic conditions (low oxygen) and explores the regulatory role of the transcription factor ONECUT2 (OC2). Using a DESeq2-based workflow, we characterize how OC2 knockdown or overexpression modulates the expression of hypoxia-induced genes, ultimately identifying a "Rescue Signature" where OC2 inhibition reverses hypoxic signaling.
 
-**Data Source & Biological Context**
+## **Data Source & Biological Context**
 The transcriptomic data used in this analysis is derived from a study published in Nature Communications (2019): https://pubmed.ncbi.nlm.nih.gov/30655535/
 
-Key Biological Findings
-Hypoxia Response: Confirmed robust activation of HIF-1 signaling and Glycolysis pathways across both cell lines.
+## **Key Biological Findings**
+1) Hypoxia Response: Confirmed robust activation of HIF-1 signaling and Glycolysis pathways across both cell lines.
+2) OC2 Regulation: Identified 729 DEGs in PC3 cells significantly regulated by OC2 knockdown under hypoxia.
+3) Rescue Signature: Discovered a specific gene set where OC2 knockdown "rescues" (reverses) the effects of hypoxia, suggesting OC2 is a critical mediator of metabolic adaptation in prostate cancer.
 
-OC2 Regulation: Identified 729 DEGs in PC3 cells significantly regulated by OC2 knockdown under hypoxia.
-
-Rescue Signature: Discovered a specific gene set where OC2 knockdown "rescues" (reverses) the effects of hypoxia, suggesting OC2 is a critical mediator of metabolic adaptation in prostate cancer.
-
-Workflow & Methodology
+## **Workflow & Methodology**
 1. Quality Control & Library Composition
 Before differential expression, we evaluated the raw data for technical artifacts:
 
@@ -43,11 +41,9 @@ Hypoxia causes Up/Down-regulation.
 OC2 Knockdown causes the opposite effect (Down/Up-regulation).
 This was visualized using ComplexHeatmap to show the reversal of Z-scores across conditions.
 
-Repository Structure
+## **Repository Structure**
 /data: Contains analysis-ready count matrices and metadata.
 
 /scripts: Custom R functions for visualization (functions.R).
 
-Initial_QC.md: Detailed report on library composition and initial data cleaning.
-
-DGEs_Deseq2.md: Full differential expression report, including the OC2 rescue analysis.
+/
