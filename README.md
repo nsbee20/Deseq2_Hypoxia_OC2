@@ -14,26 +14,22 @@ The transcriptomic data used in this analysis is derived from a study published 
 ## **Workflow & Methodology**
 1. Quality Control & Library Composition
 Before differential expression, we evaluated the raw data for technical artifacts:
+  a) Library Depth: Assessed sequencing depth across replicates to ensure statistical power.
+  b) Composition Analysis: Quantified Mitochondrial and Ribosomal content. High mitochondrial percentages can indicate low-quality samples, but our data showed consistent nuclear-dominated       libraries.
+  c) Most of this analysis is available in Initial_QC qmd and md files. 
 
-Library Depth: Assessed sequencing depth across replicates to ensure statistical power.
+2. Differential Expression Analysis using DESeq2: 
+  a) We utilized a Generalized Linear Model (GLM) to estimate fold changes: Design: ~ Treatment + Genetic_perturbation + Treatment:Genetic_perturbation.
+  b) Visualization, QC, stepwise procedure: Used MA plots and Volcano plots to validate model behavior and identify significant genes (padj < 0.05, |log2FC| > 1).
+  
 
-Composition Analysis: Quantified Mitochondrial and Ribosomal content. High mitochondrial percentages can indicate low-quality samples, but our data showed consistent nuclear-dominated libraries.
+3. Pathway Enrichment: To move from gene lists to biological mechanisms, we performed enrichment analysis: KEGG/GO: Validated that upregulated genes were enriched for Glycolysis and HIF-1 target genes.
 
-2. Differential Expression Analysis (DESeq2)
-We utilized a Generalized Linear Model (GLM) to estimate fold changes: Design: ~ Treatment + Genetic_perturbation + Treatment:Genetic_perturbation.
+4. OC2 Rescue Signature under hypoxix conditions: Using this analysis we identified 54 genes that are regulated in the opposite direction by OC2 Knockdown under hypoxic conditions. 
 
-Visualization and QC: Used MA plots and Volcano plots to validate model behavior and identify significant genes (padj < 0.05, |log2FC| > 1).
-
-3. Pathway Enrichment
-To move from gene lists to biological mechanisms, we performed enrichment analysis: KEGG/GO: Validated that upregulated genes were enriched for anaerobic metabolism and HIF-1 target genes.
-
-4. OC2 Rescue Signature under hypoxix conditions
-The highlight of this analysis is the identification of genes where: OC2 Knockdown causes the opposite effect (Down/Up-regulation).
-
+Step 2-4 analysis is available in DGEs_Deseq2 qmd and md files. 
 
 ## **Repository Structure**
 /data: Contains analysis-ready count matrices and metadata.
-
 /scripts: Custom R functions for visualization (functions.R).
-
 /analysis: Contains md and qmd files of analysis. 
