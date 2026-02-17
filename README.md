@@ -20,30 +20,20 @@ Library Depth: Assessed sequencing depth across replicates to ensure statistical
 Composition Analysis: Quantified Mitochondrial and Ribosomal content. High mitochondrial percentages can indicate low-quality samples, but our data showed consistent nuclear-dominated libraries.
 
 2. Differential Expression Analysis (DESeq2)
-We utilized a Generalized Linear Model (GLM) to estimate fold changes:
+We utilized a Generalized Linear Model (GLM) to estimate fold changes: Design: ~ Treatment + Genetic_perturbation + Treatment:Genetic_perturbation.
 
-Design: ~ Treatment + Genetic_perturbation + Treatment:Genetic_perturbation.
-
-Shrinkage: Applied apeglm shrinkage to handle low-count genes and provide conservative effect size estimates.
-
-Visualization: Used MA plots and Volcano plots to validate model behavior and identify significant genes (padj < 0.05, |log2FC| > 1).
+Visualization and QC: Used MA plots and Volcano plots to validate model behavior and identify significant genes (padj < 0.05, |log2FC| > 1).
 
 3. Pathway Enrichment
-To move from gene lists to biological mechanisms, we performed enrichment analysis:
+To move from gene lists to biological mechanisms, we performed enrichment analysis: KEGG/GO: Validated that upregulated genes were enriched for anaerobic metabolism and HIF-1 target genes.
 
-KEGG/GO: Validated that upregulated genes were enriched for anaerobic metabolism and HIF-1 target genes.
+4. OC2 Rescue Signature under hypoxix conditions
+The highlight of this analysis is the identification of genes where: OC2 Knockdown causes the opposite effect (Down/Up-regulation).
 
-4. OC2 Rescue Signature
-The highlight of this analysis is the identification of genes where:
-
-Hypoxia causes Up/Down-regulation.
-
-OC2 Knockdown causes the opposite effect (Down/Up-regulation).
-This was visualized using ComplexHeatmap to show the reversal of Z-scores across conditions.
 
 ## **Repository Structure**
 /data: Contains analysis-ready count matrices and metadata.
 
 /scripts: Custom R functions for visualization (functions.R).
 
-/
+/analysis: Contains md and qmd files of analysis. 
