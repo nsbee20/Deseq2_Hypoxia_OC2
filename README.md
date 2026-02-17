@@ -31,7 +31,7 @@ Before differential expression is performed, raw data was evaluated for technica
   a) Utilized a Generalized Linear Model (GLM) to estimate fold changes to understand the affect of treatment and genetic perturbation for both cell types.
   b) Visualization, QC, stepwise procedure for Deseq2: Displayed step wise procedure for identifying DEGs using Deseq2 package. Confirmed and validated findings at each step using various       QC steps and visualization tools. 
   
-4. Pathway Enrichment: To move from gene lists to biological mechanisms, we performed enrichment analysis: Validated that regulated genes were enriched for Glycolysis and HIF-1 target genes (well known mechanism under hypoxia condition).
+4. Pathway Enrichment: To move from gene lists to biological mechanisms, performed enrichment analysis: Validated that regulated genes were enriched for Glycolysis and HIF-1 target genes (well known mechanism under hypoxia condition).
 
 5. OC2 Rescue Signature under hypoxix conditions: Using this analysis we identified 54 genes that are regulated in the opposite direction by OC2 Knockdown under hypoxic conditions. 
 
